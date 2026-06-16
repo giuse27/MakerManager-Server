@@ -1,0 +1,22 @@
+# ==========================================
+# Comportamento di default
+# ==========================================
+* text=auto
+
+# ==========================================
+# Regole di Spring Boot per il Maven Wrapper
+# (Risolve i problemi tra Linux, Mac e Windows)
+# ==========================================
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+# ==========================================
+# Esclusioni per i file Binari
+# (Evita che Git tenti di analizzare file non testuali)
+# ==========================================
+*.jar binary
+*.class binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
