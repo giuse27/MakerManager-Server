@@ -11,7 +11,7 @@
 	<groupId>it.unipi</groupId>
 	<artifactId>MakerManager-Server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
+	<name>MakerManager-Server</name>
 	<description/>
 	<url/>
 	<licenses>
