@@ -1,0 +1,62 @@
+%% diagramma di classe per l'entità ComponenteInventario
+%% sono qui descritte le interfacce, le classi abstract, le superclassi e le
+%% sottoclassi che descrivono un elemente presente nel database dell'inventario
+
+classDiagram
+
+    %% Ereditarietà
+
+    ArticoloInventario --> ElementoCatalogo
+
+    ArticoloInventario <|-- ComponenteElettronico
+    ArticoloInventario <|-- MaterialeConsumabile
+    ArticoloInventario <|-- StrumentoDiLavoro
+
+    ArticoloInventario ..|> Calcolabile
+
+    %% Struttura delle classi
+
+    %% INTERFACCE
+
+    class Calcolabile {
+      <<interface>>
+      + getFasciaPrezzo() pair~double, double~
+      + getPrezzoEsatto() double
+    } 
+
+    %% CLASSI ABSTRACT
+
+    class ArticoloInventario {
+        <<abstract>>
+        - String id
+        - int quantita
+        - String posizione
+        - Date data_acquisto
+        - double prezzo_acquisto
+        - ElementoCatalogo elementoBase
+        + aggiungiQuantita(int q) void
+        + prelevaQuantita(int q) void
+    }
+
+    %% CLASSI
+
+    class ElementoCatalogo {
+
+    }
+
+    class ComponenteElettronico {
+        -boolean testatoFunzionante
+        -String noteSaldatura
+    }
+
+    class MaterialeConsumabile {
+        -double quantitaResiduaGrammi
+        -boolean conservatoSottoVuoto
+        +getPercentualeRimanente() double
+    }
+
+    class StrumentoDiLavoro {
+        -String statoUsura
+        -Date ultimaManutenzione
+        +richiedeManutenzione() boolean
+    }
