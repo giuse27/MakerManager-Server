@@ -1,7 +1,8 @@
-package it.unipi.makermanagerserver.model.inventory;
+package it.unipi.makermanagerserver.model.inventory.specific;
 
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
-
+import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
+import it.unipi.makermanagerserver.model.inventory.Inventario;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
