@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.model.inventory;
+package it.unipi.makermanagerserver.model.catalog;
 
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import jakarta.persistence.Entity;
