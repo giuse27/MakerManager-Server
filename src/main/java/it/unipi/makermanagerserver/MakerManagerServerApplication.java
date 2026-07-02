@@ -1,18 +1,17 @@
 package it.unipi.makermanagerserver;
 
+import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
+import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
+import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
+import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import it.unipi.makermanagerserver.enums.TipologiaElemento;
-import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
-import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
-import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
-import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
 
 @SpringBootApplication
 public class MakerManagerServerApplication {
@@ -34,22 +33,30 @@ public class MakerManagerServerApplication {
         return args -> {
             logger.info("=== INIZIO TEST DEI REPOSITORY (v0.0.0-feature-testbench) ===");
 
-            // 1. Instanziamo un elemento teorico per il Catalogo
-            ElementoCatalogo arduino = new ElementoCatalogo();
-            arduino.setNome("Arduino Uno R3");
-            
-            arduino.setTipologia(TipologiaElemento.COMPONENTE_ELETTRONICO); 
-            
-            // 2. Salvataggio nel Database
-            catalogoRepo.save(arduino);
-            logger.info("✅ Dati salvati con successo. ID assegnato da MySQL: " + arduino.getId());
+            try {
+                // 1. Creiamo ed inseriamo un elemento teorico nel catalogo
+                ElementoCatalogo raspberry = new ElementoCatalogo();
+                raspberry.setNome("Raspberry Pi 4 Model B");
+                raspberry.setDescrizione("Single Board Computer 4GB RAM");
+                raspberry.setTipologia(TipologiaElemento.COMPONENTE_ELETTRONICO);
 
-            // 3. Test generico di conteggio per assicurarsi che le tabelle rispondano
-            long elementiInCatalogo = catalogoRepo.count();
-            logger.info("📊 Elementi totali presenti nel DB (Tabella Catalogo): " + elementiInCatalogo);
+                catalogoRepo.save(raspberry);
+                logger.info("✅ Elemento Catalogo inserito con successo! ID: " + raspberry.getId());
 
-            logger.info("=== FINE TEST ===");
+                // 2. Eseguiamo un controllo di conteggio per validare la persistenza
+                long conteggioCatalogo = catalogoRepo.count();
+                logger.info("📊 Elementi totali nel Catalogo: " + conteggioCatalogo);
+                
+                // 3. Verifichiamo i metodi di query personalizzati del repository inventario
+                int sogliaScorte = 5;
+                long articoliSottoSoglia = inventarioRepo.findByQuantitaLessThanEqual(sogliaScorte).size();
+                logger.info("📦 Articoli in esaurimento (scorte <= " + sogliaScorte + "): " + articoliSottoSoglia);
+
+                logger.info("🎉 TESTBENCH SUPERATO CON SUCCESSO! Lo schema JPA è integro.");
+            } catch (Exception e) {
+                logger.error("❌ ERRORE DURANTE IL TESTBENCH DEI REPOSITORY: ", e);
+            }
+            logger.info("=================================================");
         };
     }
-
 }
