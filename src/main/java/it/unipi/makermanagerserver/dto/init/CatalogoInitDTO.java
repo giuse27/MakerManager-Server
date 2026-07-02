@@ -1,5 +1,7 @@
 package it.unipi.makermanagerserver.dto.init;
 
+import java.util.List;
+
 /**
  * DTO radice che rispecchia l'intera struttura del file
  * catalogo-iniziale.json (le 4 sezioni: catalogo, inventari,
@@ -12,5 +14,46 @@ package it.unipi.makermanagerserver.dto.init;
  * di primo livello nel JSON.
  */
 public class CatalogoInitDTO {
+
+    private List<ElementoCatalogoInitDTO> catalogo;
+    private List<InventarioInitDTO> inventari;
+    private List<ArticoloInventarioInitDTO> articoliInventario;
+    private List<ProgettoInitDTO> progetti;
+
+    public CatalogoInitDTO() {
+
+    }
+
+    public List<ElementoCatalogoInitDTO> getCatalogo() {
+        return catalogo;
+    }
+
+    public void setCatalogo(List<ElementoCatalogoInitDTO> catalogo) {
+        this.catalogo = catalogo;
+    }
+
+    public List<InventarioInitDTO> getInventari() {
+        return inventari;
+    }
+
+    public void setInventari(List<InventarioInitDTO> inventari) {
+        this.inventari = inventari;
+    }
+
+    public List<ArticoloInventarioInitDTO> getArticoliInventario() {
+        return articoliInventario;
+    }
+
+    public void setArticoliInventario(List<ArticoloInventarioInitDTO> articoliInventario) {
+        this.articoliInventario = articoliInventario;
+    }
+
+    public List<ProgettoInitDTO> getProgetti() {
+        return progetti;
+    }
+
+    public void setProgetti(List<ProgettoInitDTO> progetti) {
+        this.progetti = progetti;
+    }
     
 }
