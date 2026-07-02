@@ -13,5 +13,46 @@ package it.unipi.makermanagerserver.dto.init;
  * prima, essendo la base di tutto il dominio).
  */
 public class ArticoloInventarioInitDTO {
-    
+ 
+    private String tipo;
+    private String elementoCatalogo;
+    private String inventario;
+    private int quantita;
+
+    public ArticoloInventarioInitDTO() {
+
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getElementoCatalogo() {
+        return elementoCatalogo;
+    }
+
+    public void setElementoCatalogo(String elementoCatalogo) {
+        this.elementoCatalogo = elementoCatalogo;
+    }
+
+    public String getInventario() {
+        return inventario;
+    }
+
+    public void setInventario(String inventario) {
+        this.inventario = inventario;
+    }
+
+    public int getQuantita() {
+        return quantita;
+    }
+
+    public void setQuantita(int quantita) {
+        this.quantita = quantita;
+    }
+
 }
