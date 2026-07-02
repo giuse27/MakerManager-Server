@@ -95,6 +95,10 @@ public class InizializzazioneService {
         cancellaDatiEsistenti();
 
         // Inizializzazione vera e propria
+        Map<String, ElementoCatalogo> catalogoPerNome = caricaCatalogo(dati);
+        Map<String, Inventario> inventariPerNome = caricaInventario(dati);
+        caricaArticoliInventario(dati, catalogoPerNome, inventariPerNome);
+        caricaProgetti(dati, catalogoPerNome);        
 
         logger.info("Inizializzazione completata con successo");
     }
