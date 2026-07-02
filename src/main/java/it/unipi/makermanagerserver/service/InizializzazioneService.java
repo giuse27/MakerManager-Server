@@ -87,7 +87,7 @@ public class InizializzazioneService {
      * restare in uno stato parziale/inconsistente.
      */
     @Transactional
-    private void inizializza() {
+    public void inizializza() {
 
         logger.info("Avvio l'inizializzazione o la reinizializzazione del DB");
 
