@@ -1,0 +1,317 @@
+package it.unipi.makermanagerserver.service;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import it.unipi.makermanagerserver.dto.init.ArticoloInventarioInitDTO;
+import it.unipi.makermanagerserver.dto.init.CatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.init.ElementoCatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.init.InventarioInitDTO;
+import it.unipi.makermanagerserver.dto.init.ProgettoInitDTO;
+import it.unipi.makermanagerserver.dto.init.RigaBOMInitDTO;
+import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
+import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
+import it.unipi.makermanagerserver.model.inventory.Inventario;
+import it.unipi.makermanagerserver.model.inventory.specific.ComponenteElettronico;
+import it.unipi.makermanagerserver.model.inventory.specific.MaterialeConsumabile;
+import it.unipi.makermanagerserver.model.project.BOM;
+import it.unipi.makermanagerserver.model.project.ProgettoMaker;
+import it.unipi.makermanagerserver.model.project.RigaBOM;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoSoftware;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoStampa3D;
+import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
+import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
+import it.unipi.makermanagerserver.repository.InventarioRepository;
+import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
+import tools.jackson.databind.ObjectMapper;
+
+/**
+ * Service dedicato alla logica di business dell'endpoint /inizializza
+ * (SRP: questa classe si occupa solo di popolare/ripopolare il database,
+ * nessun'altra responsabilita').
+ *
+ * Legge il file catalogo-iniziale.json da resources/data, e se il database
+ * contiene gia' dati li cancella integralmente prima di ricaricare, come
+ * richiesto dal documento di contesto del progetto (punto 4).
+ */
+@Service
+public class InizializzazioneService {
+    
+    private static final Logger logger = LogManager.getLogger(InizializzazioneService.class);
+    private static final String PERCORSO_JSON = "data/catalogo-iniziale.json";
+
+    private final ElementoCatalogoRepository catalogoRepo;
+    private final InventarioRepository inventarioRepo;
+    private final ArticoloInventarioRepository articoloRepo;
+    private final ProgettoMakerRepository progettoRepo;
+    private final ObjectMapper objectMapper;
+ 
+    // Iniezione delle dipendenze via costruttore: e' la modalita' raccomandata
+    // in Spring (rispetto a @Autowired sui campi) perche' rende esplicite le
+    // dipendenze della classe e permette di scrivere test unitari passando
+    // dei mock senza dover avviare l'intero contesto Spring.
+    public InizializzazioneService(
+            ElementoCatalogoRepository catalogoRepo,
+            InventarioRepository inventarioRepo,
+            ArticoloInventarioRepository articoloRepo,
+            ProgettoMakerRepository progettoRepo,
+            ObjectMapper objectMapper
+        ) 
+    {
+        this.catalogoRepo = catalogoRepo;
+        this.inventarioRepo = inventarioRepo;
+        this.articoloRepo = articoloRepo;
+        this.progettoRepo = progettoRepo;
+        this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Cancella tutti i dati esistenti e ricarica integralmente dal JSON.
+     *
+     * @Transactional: l'intera operazione viene eseguita come un'unica
+     * transazione DB. Se qualcosa fallisce a meta' (es. un riferimento nel
+     * JSON che non trova corrispondenza), Spring esegue il rollback
+     * automatico e il database torna allo stato precedente, invece di
+     * restare in uno stato parziale/inconsistente.
+     */
+    @Transactional
+    public void inizializza() {
+
+        logger.info("Avvio l'inizializzazione o la reinizializzazione del DB");
+
+        CatalogoInitDTO dati = leggiJson();
+        cancellaDatiEsistenti();
+
+        // Inizializzazione vera e propria
+        Map<String, ElementoCatalogo> catalogoPerNome = caricaCatalogo(dati);
+        Map<String, Inventario> inventariPerNome = caricaInventario(dati);
+        caricaArticoliInventario(dati, catalogoPerNome, inventariPerNome);
+        caricaProgetti(dati, catalogoPerNome);        
+
+        logger.info("Inizializzazione completata con successo");
+    }
+
+    // Lettura del file json
+    private CatalogoInitDTO leggiJson() {
+
+        try (InputStream inputStream = new ClassPathResource(PERCORSO_JSON).getInputStream()) {
+            
+            return objectMapper.readValue(inputStream, CatalogoInitDTO.class);
+
+        } catch (IOException e) {
+            
+            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
+            // non c'e' nulla da inizializzare. Lo trasformiamo in una
+            // RuntimeException non controllata, che il controller potra'
+            // intercettare per restituire un errore HTTP appropriato.
+            throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
+
+        }
+    }
+
+    // Cancellazione dei dati esistenti
+    /*
+     * Ordine di cancellazione obbligato dai vincoli delle foreign key:
+     * 1) ProgettoMaker: il cascade su BOM.righeFabbisogno cancella anche le RigaBOM
+     * 2) Inventario: il cascade su Inventario.articoli cancella anche gli ArticoloInventario
+     * 3) ElementoCatalogo: solo ora e' sicuro, nessuno lo referenzia piu'
+     */
+    private void cancellaDatiEsistenti() {
+
+        logger.info("Sto cancellando i dati esistenti");
+        progettoRepo.deleteAll();
+        inventarioRepo.deleteAll();
+        catalogoRepo.deleteAll();
+
+    }
+
+    // Caricamento di ElementoCatalogo
+    private Map<String, ElementoCatalogo> caricaCatalogo(CatalogoInitDTO dati) {
+
+        Map<String, ElementoCatalogo> res = new HashMap<>();
+
+        for (ElementoCatalogoInitDTO dto : dati.getCatalogo()) {
+
+            ElementoCatalogo elemento = new ElementoCatalogo(
+                dto.getNome(), 
+                dto.getDescrizione(), 
+                TipologiaElemento.valueOf(dto.getTipologia())
+            );
+            catalogoRepo.save(elemento);
+            res.put(dto.getNome(), elemento);
+
+        }
+
+        logger.info("Caricati {} elementi in catalogo", res.size());
+        return res;
+
+    }
+
+    // Caricamento di Inventario
+    private Map<String, Inventario> caricaInventario(CatalogoInitDTO dati) {
+
+        Map<String, Inventario> res = new HashMap<>();
+
+        for (InventarioInitDTO dto : dati.getInventari()) {
+
+            Inventario inventario = new Inventario(
+                dto.getNome(), 
+                dto.getIdUtente()
+            );
+            inventarioRepo.save(inventario);
+            res.put(dto.getNome(), inventario);
+
+        }
+
+        logger.info("Caricati {} inventari", res.size());
+        return res;
+
+    }
+
+    // Caricamento di ArticoloInventario (dipende da ElementoCatalogo e da Inventario)
+    private void caricaArticoliInventario(
+        CatalogoInitDTO dati,
+        Map<String, ElementoCatalogo> catalogoPerNome,
+        Map<String, Inventario> inventarioPerNome
+    ) {
+
+        int count = 0;
+
+        for (ArticoloInventarioInitDTO dto : dati.getArticoliInventario()) {
+
+            ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, dto.getElementoCatalogo());
+            Inventario inventario = risolviInventario(inventarioPerNome, dto.getInventario());
+
+            ArticoloInventario articolo = creaArticoloInventario(dto.getTipo(), elemento, inventario, dto.getQuantita());
+
+            // aggiungiArticolo mantiene coerenti entrambi i lati della relazione
+            // bidirezionale (vedi Inventario.aggiungiArticolo)
+            inventario.aggiungiArticolo(articolo);
+            articoloRepo.save(articolo);
+            count++;
+
+        }
+
+        logger.info("Caricati {} articoli dell'inventario", count);
+
+    }
+
+    /*
+     * Factory minimale per istanziare la sottoclasse corretta di ArticoloInventario
+     * sulla base del campo "tipo" del json
+     */
+    private ArticoloInventario creaArticoloInventario(
+        String tipo,
+        ElementoCatalogo elemento,
+        Inventario inventario,
+        int quantita
+    ) {
+
+        TipologiaElemento tipologia = TipologiaElemento.valueOf(tipo);
+
+        return switch (tipologia) {
+
+            case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
+            case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
+            
+            default -> throw new IllegalArgumentException(
+                "Tipologia di articolo non ancora supportata: " + tipo 
+            );
+
+        };
+
+    }
+
+    // Caricamento di ProgettoMaker + BOM (dipende da ElementoCatalogo)
+    private void caricaProgetti(CatalogoInitDTO dati, Map<String, ElementoCatalogo> catalogoPerNome) {
+
+        int count = 0;
+
+        for (ProgettoInitDTO dto : dati.getProgetti()) {
+
+            ProgettoMaker progetto = creaProgetto(dto.getTipo());
+
+            progetto.setNome(dto.getNome());
+            progetto.setDescrizione(dto.getDescrizione());
+            progetto.setDistintaBase(creaBOM(dto.getBom(), catalogoPerNome));
+
+            progettoRepo.save(progetto);
+            count++;
+
+        }
+
+        logger.info("Caricati {} progetti", count);
+
+    }
+
+    /*
+     * Factory minimale per istanziare la sottoclasse corretta di ProgettoMaker
+     * sulla base del campo "tipo" del json
+     */
+    private ProgettoMaker creaProgetto(String tipo) {
+
+        return switch (tipo) {
+
+            case "STAMPA_3D" -> new ProgettoStampa3D();
+            case "ELETTRONICA" -> new ProgettoElettronica();
+            case "ROBOTICA" -> new ProgettoRobotica();
+            case "SOFTWARE" -> new ProgettoSoftware();
+
+            default -> throw new IllegalArgumentException(
+                "Tipologia di articolo non ancora supportata: " + tipo 
+            );
+
+        };
+
+    }
+
+    // Creazione della BOM
+    private BOM creaBOM(List<RigaBOMInitDTO> righeDto, Map<String, ElementoCatalogo> catalogoPerNome) {
+        
+        BOM bom = new BOM();
+
+        for (RigaBOMInitDTO rigaDto : righeDto) {
+            
+            ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, rigaDto.getElementoCatalogo());
+            bom.aggiungiRiga(new RigaBOM(elemento, rigaDto.getQuantita()));
+
+        }
+
+        return bom;
+
+    }
+
+
+    // ### Utility per risoluzione di riferimenti testuali ###
+
+    private ElementoCatalogo risolviElementoCatalogo(Map<String, ElementoCatalogo> catalogoPerNome, String nome) {
+        ElementoCatalogo elemento = catalogoPerNome.get(nome);
+        if (elemento == null) {
+            throw new IllegalStateException(
+                    "Riferimento non valido nel JSON di inizializzazione: ElementoCatalogo '" + nome + "' non trovato.");
+        }
+        return elemento;
+    }
+ 
+    private Inventario risolviInventario(Map<String, Inventario> inventariPerNome, String nome) {
+        Inventario inventario = inventariPerNome.get(nome);
+        if (inventario == null) {
+            throw new IllegalStateException(
+                    "Riferimento non valido nel JSON di inizializzazione: Inventario '" + nome + "' non trovato.");
+        }
+        return inventario;
+    }
+
+}
