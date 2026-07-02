@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 
 @Repository
@@ -15,7 +16,7 @@ public interface ElementoCatalogoRepository extends JpaRepository<ElementoCatalo
     // SELECT * FROM elementi_catalogo WHERE nome LIKE %?%
     List<ElementoCatalogo> findByNomeContainingIgnoreCase(String nome);
 
-    // Trova componenti per categoria (es. "Elettronica", "Filamenti")
-    List<ElementoCatalogo> findByCategoria(String categoria);
+    // trova componenti per tipologia
+    List<ElementoCatalogo> findByTipologia(TipologiaElemento tipologia);
 
 }
