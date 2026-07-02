@@ -1,5 +1,21 @@
 package it.unipi.makermanagerserver.repository;
 
-public class ElementoCatalogoRepository {
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
+
+@Repository
+public interface ElementoCatalogoRepository extends JpaRepository<ElementoCatalogo, Long>{
     
+    // le query sql vengono fatte in automatico da spring a partire dal parsing
+    // testuale del nome del metodo
+    // SELECT * FROM elementi_catalogo WHERE nome LIKE %?%
+    List<ElementoCatalogo> findByNomeContainingIgnoreCase(String nome);
+
+    // Trova componenti per categoria (es. "Elettronica", "Filamenti")
+    List<ElementoCatalogo> findByCategoria(String categoria);
+
 }
