@@ -16,14 +16,18 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class MakerManagerServerApplication {
 
-	private static final Logger logger = LogManager.getLogger(MakerManagerServerApplication.class); 
+    private static final Logger logger = LogManager.getLogger(MakerManagerServerApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(MakerManagerServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MakerManagerServerApplication.class, args);
+    }
 
-	// Questo Bean viene eseguito in automatico da Spring Boot all'avvio
-    // Spring Boot inietterà automaticamente i TUOI repository
+    /*
+     * Testbench di avvio: verifica che la connessione al database 
+     * e l'inizializzazione dei bean JPA avvengano con successo.
+     * * Nota: Utilizziamo un controllo di esistenza preventiva per evitare inserimenti
+     * duplicati causati dall'avvio congiunto dei Test JUnit e del Server reale.
+     */
     @Bean
     public CommandLineRunner eseguiTestbench(
             ElementoCatalogoRepository catalogoRepo,
@@ -31,17 +35,25 @@ public class MakerManagerServerApplication {
             ProgettoMakerRepository progettiRepo) {
             
         return args -> {
-            logger.info("=== INIZIO TEST DEI REPOSITORY (v0.0.0-feature-testbench) ===");
+            logger.info("=================================================");
+            logger.info("🚀 AVVIO TESTBENCH DEL SERVER MAKERMANAGER v0.0.0");
+            logger.info("=================================================");
 
             try {
-                // 1. Creiamo ed inseriamo un elemento teorico nel catalogo
-                ElementoCatalogo raspberry = new ElementoCatalogo();
-                raspberry.setNome("Raspberry Pi 4 Model B");
-                raspberry.setDescrizione("Single Board Computer 4GB RAM");
-                raspberry.setTipologia(TipologiaElemento.COMPONENTE_ELETTRONICO);
+                String nomeElemento = "Raspberry Pi 4 Model B";
 
-                catalogoRepo.save(raspberry);
-                logger.info("✅ Elemento Catalogo inserito con successo! ID: " + raspberry.getId());
+                // 1. Verifichiamo se l'elemento esiste già nel catalogo prima di salvare
+                if (catalogoRepo.findByNomeContainingIgnoreCase(nomeElemento).isEmpty()) {
+                    ElementoCatalogo raspberry = new ElementoCatalogo();
+                    raspberry.setNome(nomeElemento);
+                    raspberry.setDescrizione("Single Board Computer 4GB RAM");
+                    raspberry.setTipologia(TipologiaElemento.COMPONENTE_ELETTRONICO);
+
+                    catalogoRepo.save(raspberry);
+                    logger.info("✅ Elemento Catalogo inserito con successo! ID: " + raspberry.getId());
+                } else {
+                    logger.info("L'elemento '" + nomeElemento + "' è già presente nel DB. Salto l'inserimento per evitare duplicati.");
+                }
 
                 // 2. Eseguiamo un controllo di conteggio per validare la persistenza
                 long conteggioCatalogo = catalogoRepo.count();
