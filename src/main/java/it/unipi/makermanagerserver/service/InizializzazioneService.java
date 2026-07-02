@@ -2,6 +2,8 @@ package it.unipi.makermanagerserver.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,9 +12,25 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import it.unipi.makermanagerserver.dto.init.ArticoloInventarioInitDTO;
 import it.unipi.makermanagerserver.dto.init.CatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.init.ElementoCatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.init.InventarioInitDTO;
+import it.unipi.makermanagerserver.dto.init.ProgettoInitDTO;
+import it.unipi.makermanagerserver.dto.init.RigaBOMInitDTO;
+import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
+import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
 import it.unipi.makermanagerserver.model.inventory.Inventario;
+import it.unipi.makermanagerserver.model.inventory.specific.ComponenteElettronico;
+import it.unipi.makermanagerserver.model.inventory.specific.MaterialeConsumabile;
+import it.unipi.makermanagerserver.model.project.BOM;
+import it.unipi.makermanagerserver.model.project.ProgettoMaker;
+import it.unipi.makermanagerserver.model.project.RigaBOM;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoSoftware;
+import it.unipi.makermanagerserver.model.project.specific.ProgettoStampa3D;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 import it.unipi.makermanagerserver.repository.InventarioRepository;
@@ -116,28 +134,165 @@ public class InizializzazioneService {
     }
 
     // Caricamento di ElementoCatalogo
+    private Map<String, ElementoCatalogo> caricaCatalogo(CatalogoInitDTO dati) {
+
+        Map<String, ElementoCatalogo> res = new HashMap<>();
+
+        for (ElementoCatalogoInitDTO dto : dati.getCatalogo()) {
+
+            ElementoCatalogo elemento = new ElementoCatalogo(
+                dto.getNome(), 
+                dto.getDescrizione(), 
+                TipologiaElemento.valueOf(dto.getTipologia())
+            );
+            catalogoRepo.save(elemento);
+            res.put(dto.getNome(), elemento);
+
+        }
+
+        logger.info("Caricati {} elementi in catalogo", res.size());
+        return res;
+
+    }
 
     // Caricamento di Inventario
+    private Map<String, Inventario> caricaInventario(CatalogoInitDTO dati) {
+
+        Map<String, Inventario> res = new HashMap<>();
+
+        for (InventarioInitDTO dto : dati.getInventari()) {
+
+            Inventario inventario = new Inventario(
+                dto.getNome(), 
+                dto.getIdUtente()
+            );
+            inventarioRepo.save(inventario);
+            res.put(dto.getNome(), inventario);
+
+        }
+
+        logger.info("Caricati {} inventari", res.size());
+        return res;
+
+    }
 
     // Caricamento di ArticoloInventario (dipende da ElementoCatalogo e da Inventario)
+    private void caricaArticoliInventario(
+        CatalogoInitDTO dati,
+        Map<String, ElementoCatalogo> catalogoPerNome,
+        Map<String, Inventario> inventarioPerNome
+    ) {
+
+        int count = 0;
+
+        for (ArticoloInventarioInitDTO dto : dati.getArticoliInventario()) {
+
+            ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, dto.getElementoCatalogo());
+            Inventario inventario = risolviInventario(inventarioPerNome, dto.getInventario());
+
+            ArticoloInventario articolo = creaArticoloInventario(dto.getTipo(), elemento, inventario, dto.getQuantita());
+
+            // aggiungiArticolo mantiene coerenti entrambi i lati della relazione
+            // bidirezionale (vedi Inventario.aggiungiArticolo)
+            inventario.aggiungiArticolo(articolo);
+            articoloRepo.save(articolo);
+            count++;
+
+        }
+
+        logger.info("Caricati {} articoli dell'inventario", count);
+
+    }
 
     /*
      * Factory minimale per istanziare la sottoclasse corretta di ArticoloInventario
      * sulla base del campo "tipo" del json
      */
+    private ArticoloInventario creaArticoloInventario(
+        String tipo,
+        ElementoCatalogo elemento,
+        Inventario inventario,
+        int quantita
+    ) {
+
+        TipologiaElemento tipologia = TipologiaElemento.valueOf(tipo);
+
+        return switch (tipologia) {
+
+            case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
+            case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
+            
+            default -> throw new IllegalArgumentException(
+                "Tipologia di articolo non ancora supportata: " + tipo 
+            );
+
+        };
+
+    }
 
     // Caricamento di ProgettoMaker + BOM (dipende da ElementoCatalogo)
+    private void caricaProgetti(CatalogoInitDTO dati, Map<String, ElementoCatalogo> catalogoPerNome) {
+
+        int count = 0;
+
+        for (ProgettoInitDTO dto : dati.getProgetti()) {
+
+            ProgettoMaker progetto = creaProgetto(dto.getTipo());
+
+            progetto.setNome(dto.getNome());
+            progetto.setDescrizione(dto.getDescrizione());
+            progetto.setDistintaBase(creaBOM(dto.getBom(), catalogoPerNome));
+
+            progettoRepo.save(progetto);
+            count++;
+
+        }
+
+        logger.info("Caricati {} progetti", count);
+
+    }
 
     /*
      * Factory minimale per istanziare la sottoclasse corretta di ProgettoMaker
      * sulla base del campo "tipo" del json
      */
+    private ProgettoMaker creaProgetto(String tipo) {
+
+        return switch (tipo) {
+
+            case "STAMPA_3D" -> new ProgettoStampa3D();
+            case "ELETTRONICA" -> new ProgettoElettronica();
+            case "ROBOTICA" -> new ProgettoRobotica();
+            case "SOFTWARE" -> new ProgettoSoftware();
+
+            default -> throw new IllegalArgumentException(
+                "Tipologia di articolo non ancora supportata: " + tipo 
+            );
+
+        };
+
+    }
 
     // Creazione della BOM
+    private BOM creaBOM(List<RigaBOMInitDTO> righeDto, Map<String, ElementoCatalogo> catalogoPerNome) {
+        
+        BOM bom = new BOM();
 
-    // Utility per risoluzione di riferimenti testuali
+        for (RigaBOMInitDTO rigaDto : righeDto) {
+            
+            ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, rigaDto.getElementoCatalogo());
+            bom.aggiungiRiga(new RigaBOM(elemento, rigaDto.getQuantita()));
 
-        private ElementoCatalogo risolviElementoCatalogo(Map<String, ElementoCatalogo> catalogoPerNome, String nome) {
+        }
+
+        return bom;
+
+    }
+
+
+    // ### Utility per risoluzione di riferimenti testuali ###
+
+    private ElementoCatalogo risolviElementoCatalogo(Map<String, ElementoCatalogo> catalogoPerNome, String nome) {
         ElementoCatalogo elemento = catalogoPerNome.get(nome);
         if (elemento == null) {
             throw new IllegalStateException(
