@@ -1,5 +1,6 @@
-package it.unipi.makermanagerserver.model.project;
+package it.unipi.makermanagerserver.model.project.specific;
 
+import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
