@@ -1,6 +1,6 @@
 package it.unipi.makermanagerserver.dto.init;
 
-/*
+/**
  * DTO radice che rispecchia l'intera struttura del file
  * catalogo-iniziale.json (le 4 sezioni: catalogo, inventari,
  * articoliInventario, progetti).
@@ -12,7 +12,5 @@ package it.unipi.makermanagerserver.dto.init;
  * di primo livello nel JSON.
  */
 public class CatalogoInitDTO {
-
-    
     
 }
