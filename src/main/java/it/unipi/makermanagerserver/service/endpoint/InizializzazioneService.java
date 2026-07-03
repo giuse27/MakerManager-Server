@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.service;
+package it.unipi.makermanagerserver.service.endpoint;
 
 import java.io.IOException;
 import java.io.InputStream;
