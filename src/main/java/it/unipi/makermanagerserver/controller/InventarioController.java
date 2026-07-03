@@ -30,7 +30,14 @@ public class InventarioController {
      */
 
     /**
-     * GET /api/inventario/{idUtente}
+     * GET /api/inventario/{idInventario}
+     * 
+     * Restituisce il contenuto degli articoli presenti nell'inventario
+     * contrassegnato da id
+     */
+
+    /**
+     * GET /api/inventario/utente/{idUtente}
      * 
      * Restituisce l'elenco di inventari associati a un utente
      */
@@ -42,27 +49,20 @@ public class InventarioController {
      */
 
     /**
-     * DELETE /api/inventario/{id}
+     * DELETE /api/inventario/{idInventario}
      * 
      * Elimina l'inventario a partire dal suo id
      */
-
-    /**
-     * GET /api/inventario/{id}/articoli
-     * 
-     * Restituisce il contenuto degli articoli presenti nell'inventario
-     * contrassegnato da id
-     */
     
     /**
-     * POST /api/inventario/{id}/articoli
+     * POST /api/inventario/{idInventario}/articoli
      * 
      * Crea un nuovo articolo nell'inventario id, che ha le caratteristiche
      * specificate nel body
      */
 
     /**
-     * DELETE /api/inventario/{id}/articoli/{idArticolo}
+     * DELETE /api/inventario/{idInventario}/articoli/{idArticolo}
      * 
      * Elimina l'articolo contrassegnato da idArticolo dall'inventario id
      */
