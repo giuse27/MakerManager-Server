@@ -10,6 +10,12 @@ public class InventarioResponseDTO {
 
     }
     
+    public InventarioResponseDTO(Long id, String nome, Long idUtente) {
+        this.id = id;
+        this.nome = nome;
+        this.idUtente = idUtente;
+    }
+
     public Long getId() {
         return id;
     }
