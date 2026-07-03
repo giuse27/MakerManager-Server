@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.dto.init;
+package it.unipi.makermanagerserver.dto.inizializza;
 
 /**
  * DTO "di caricamento": rispecchia la forma di una voce dell'array

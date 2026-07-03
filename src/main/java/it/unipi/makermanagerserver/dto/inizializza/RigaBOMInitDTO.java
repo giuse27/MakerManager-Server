@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.dto.init;
+package it.unipi.makermanagerserver.dto.inizializza;
 
 /**
  * DTO "di caricamento" per una voce dell'array "bom" annidato dentro

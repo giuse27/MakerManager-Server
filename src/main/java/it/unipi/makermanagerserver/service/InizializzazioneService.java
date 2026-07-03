@@ -12,12 +12,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.unipi.makermanagerserver.dto.init.ArticoloInventarioInitDTO;
-import it.unipi.makermanagerserver.dto.init.CatalogoInitDTO;
-import it.unipi.makermanagerserver.dto.init.ElementoCatalogoInitDTO;
-import it.unipi.makermanagerserver.dto.init.InventarioInitDTO;
-import it.unipi.makermanagerserver.dto.init.ProgettoInitDTO;
-import it.unipi.makermanagerserver.dto.init.RigaBOMInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ArticoloInventarioInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.CatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ElementoCatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
