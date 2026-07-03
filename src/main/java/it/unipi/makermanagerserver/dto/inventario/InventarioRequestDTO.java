@@ -1,6 +1,6 @@
 package it.unipi.makermanagerserver.dto.inventario;
 
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 public class InventarioRequestDTO {
  
