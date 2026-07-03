@@ -19,18 +19,14 @@ import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.factory.ArticoloInventarioFactory;
+import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
 import it.unipi.makermanagerserver.model.inventory.Inventario;
-import it.unipi.makermanagerserver.model.inventory.specific.ComponenteElettronico;
-import it.unipi.makermanagerserver.model.inventory.specific.MaterialeConsumabile;
 import it.unipi.makermanagerserver.model.project.BOM;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.RigaBOM;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoSoftware;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoStampa3D;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 import it.unipi.makermanagerserver.repository.InventarioRepository;
@@ -80,9 +76,9 @@ public class InizializzazioneService {
     /**
      * Cancella tutti i dati esistenti e ricarica integralmente dal JSON.
      *
-     * @Transactional: l'intera operazione viene eseguita come un'unica
-     * transazione DB. Se qualcosa fallisce a meta' (es. un riferimento nel
-     * JSON che non trova corrispondenza), Spring esegue il rollback
+     * Annotazione @Transactional: l'intera operazione viene eseguita come 
+     * un'unica transazione DB. Se qualcosa fallisce a meta' (es. un riferimento 
+     * nel JSON che non trova corrispondenza), Spring esegue il rollback
      * automatico e il database torna allo stato precedente, invece di
      * restare in uno stato parziale/inconsistente.
      */
@@ -101,24 +97,6 @@ public class InizializzazioneService {
         caricaProgetti(dati, catalogoPerNome);        
 
         logger.info("Inizializzazione completata con successo");
-    }
-
-    // Lettura del file json
-    private CatalogoInitDTO leggiJson() {
-
-        try (InputStream inputStream = new ClassPathResource(PERCORSO_JSON).getInputStream()) {
-            
-            return objectMapper.readValue(inputStream, CatalogoInitDTO.class);
-
-        } catch (IOException e) {
-            
-            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
-            // non c'e' nulla da inizializzare. Lo trasformiamo in una
-            // RuntimeException non controllata, che il controller potra'
-            // intercettare per restituire un errore HTTP appropriato.
-            throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
-
-        }
     }
 
     // Cancellazione dei dati esistenti
@@ -194,7 +172,9 @@ public class InizializzazioneService {
             ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, dto.getElementoCatalogo());
             Inventario inventario = risolviInventario(inventarioPerNome, dto.getInventario());
 
-            ArticoloInventario articolo = creaArticoloInventario(dto.getTipo(), elemento, inventario, dto.getQuantita());
+            ArticoloInventario articolo = ArticoloInventarioFactory.creaArticoloInventario(
+                dto.getTipo(), elemento, inventario, dto.getQuantita()
+            );
 
             // aggiungiArticolo mantiene coerenti entrambi i lati della relazione
             // bidirezionale (vedi Inventario.aggiungiArticolo)
@@ -208,32 +188,6 @@ public class InizializzazioneService {
 
     }
 
-    /*
-     * Factory minimale per istanziare la sottoclasse corretta di ArticoloInventario
-     * sulla base del campo "tipo" del json
-     */
-    private ArticoloInventario creaArticoloInventario(
-        String tipo,
-        ElementoCatalogo elemento,
-        Inventario inventario,
-        int quantita
-    ) {
-
-        TipologiaElemento tipologia = TipologiaElemento.valueOf(tipo);
-
-        return switch (tipologia) {
-
-            case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
-            case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
-            
-            default -> throw new IllegalArgumentException(
-                "Tipologia di articolo non ancora supportata: " + tipo 
-            );
-
-        };
-
-    }
-
     // Caricamento di ProgettoMaker + BOM (dipende da ElementoCatalogo)
     private void caricaProgetti(CatalogoInitDTO dati, Map<String, ElementoCatalogo> catalogoPerNome) {
 
@@ -241,7 +195,7 @@ public class InizializzazioneService {
 
         for (ProgettoInitDTO dto : dati.getProgetti()) {
 
-            ProgettoMaker progetto = creaProgetto(dto.getTipo());
+            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(dto.getTipo());
 
             progetto.setNome(dto.getNome());
             progetto.setDescrizione(dto.getDescrizione());
@@ -253,27 +207,6 @@ public class InizializzazioneService {
         }
 
         logger.info("Caricati {} progetti", count);
-
-    }
-
-    /*
-     * Factory minimale per istanziare la sottoclasse corretta di ProgettoMaker
-     * sulla base del campo "tipo" del json
-     */
-    private ProgettoMaker creaProgetto(String tipo) {
-
-        return switch (tipo) {
-
-            case "STAMPA_3D" -> new ProgettoStampa3D();
-            case "ELETTRONICA" -> new ProgettoElettronica();
-            case "ROBOTICA" -> new ProgettoRobotica();
-            case "SOFTWARE" -> new ProgettoSoftware();
-
-            default -> throw new IllegalArgumentException(
-                "Tipologia di articolo non ancora supportata: " + tipo 
-            );
-
-        };
 
     }
 
@@ -293,6 +226,27 @@ public class InizializzazioneService {
 
     }
 
+    // #########################################################################
+    // ------------------------- UTILITY PRIVATE -------------------------------
+    // #########################################################################
+
+    // ### Utility per la lettura del file JSON
+    private CatalogoInitDTO leggiJson() {
+
+        try (InputStream inputStream = new ClassPathResource(PERCORSO_JSON).getInputStream()) {
+            
+            return objectMapper.readValue(inputStream, CatalogoInitDTO.class);
+
+        } catch (IOException e) {
+            
+            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
+            // non c'e' nulla da inizializzare. Lo trasformiamo in una
+            // RuntimeException non controllata, che il controller potra'
+            // intercettare per restituire un errore HTTP appropriato.
+            throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
+
+        }
+    }
 
     // ### Utility per risoluzione di riferimenti testuali ###
 
