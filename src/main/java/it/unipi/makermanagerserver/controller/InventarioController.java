@@ -45,9 +45,7 @@ public class InventarioController {
     @GetMapping
     public ResponseEntity<List<InventarioResponseDTO>> trovaTuttiGliInventari() {
 
-        // TODO
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(inventarioService.trovaTuttiGliInventari());
 
     }
 
@@ -62,9 +60,9 @@ public class InventarioController {
         @PathVariable Long idInventario
     ) {
 
-        // TODO
-
-        return ResponseEntity.ok().build();
+        // Se l'inventario non esiste, il Service lancia NoSuchElementException:
+        // la lasciamo risalire, ci pensa il GlobalExceptionHandler a restituire 404
+        return ResponseEntity.ok(inventarioService.trovaInventario(idInventario));
 
     }
 
@@ -78,9 +76,7 @@ public class InventarioController {
         @PathVariable Long idUtente
     ) {
 
-        // TODO
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(inventarioService.trovaInventariUtente(idUtente));
     
     }
 
@@ -95,9 +91,8 @@ public class InventarioController {
         @Validated @RequestBody InventarioRequestDTO inventario
     ) {
         
-        // TODO
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        InventarioResponseDTO dtoRisposta = inventarioService.creaInventario(inventario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoRisposta);
 
     }
 
@@ -109,43 +104,43 @@ public class InventarioController {
     @DeleteMapping("/{idInventario}")
     public ResponseEntity<Void> eliminaInventario(@PathVariable Long idInventario) {
 
-        // TODO
-
+        inventarioService.eliminaInventario(idInventario);
         return ResponseEntity.noContent().build();
 
     }
     
     /**
-     * POST /api/inventario/{idInventario}/articoli
+     * POST /api/inventario/articoli
      * 
-     * Crea un nuovo articolo nell'inventario id, che ha le caratteristiche
-     * specificate nel body
+     * Crea un nuovo articolo. L'inventario e l'elemento di catalogo di
+     * destinazione sono indicati dagli id presenti nel body (idInventario,
+     * idElementoCatalogo): a differenza degli altri endpoint qui non c'e'
+     * un id "genitore" nel path, perche' un ArticoloInventario ha gia' un
+     * proprio id univoco indipendente dall'inventario che lo contiene.
      */
-    @PostMapping("/{idInventario}/articoli")
+    @PostMapping("/articoli")
     public ResponseEntity<ArticoloInventarioResponseDTO> creaArticoloInventario(
-        @PathVariable Long idInventario,
         @Validated @RequestBody ArticoloInventarioRequestDTO articolo
     ) {
 
-        // TODO
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        ArticoloInventarioResponseDTO dtoRisposta = inventarioService.creaArticoloInventario(articolo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoRisposta);
 
     }
 
     /**
-     * DELETE /api/inventario/{idInventario}/articoli/{idArticolo}
+     * DELETE /api/inventario/articoli/{idArticolo}
      * 
-     * Elimina l'articolo contrassegnato da idArticolo dall'inventario id
+     * Elimina l'articolo contrassegnato da idArticolo. Non serve indicare
+     * l'inventario di appartenenza: l'id dell'articolo e' gia' una chiave
+     * primaria univoca in tutto il database (vedi nota in InventarioService).
      */
-    @DeleteMapping("/{idInventario}/articoli/{idArticolo}")
+    @DeleteMapping("/articoli/{idArticolo}")
     public ResponseEntity<Void> eliminaArticoloDaInventario(
-        @PathVariable Long idInventario,
         @PathVariable Long idArticolo
     ) {
 
-        // TODO
-
+        inventarioService.eliminaArticoloDaInventario(idArticolo);
         return ResponseEntity.noContent().build();
 
     }
