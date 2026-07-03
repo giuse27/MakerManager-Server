@@ -10,6 +10,13 @@ public class ArticoloInventarioResponseDTO {
     public ArticoloInventarioResponseDTO() {
 
     }
+    
+    public ArticoloInventarioResponseDTO(Long id, String elementoCatalogo, String inventario, int quantita) {
+        this.id = id;
+        this.elementoCatalogo = elementoCatalogo;
+        this.inventario = inventario;
+        this.quantita = quantita;
+    }
 
     public Long getId() {
         return id;
