@@ -1,12 +1,12 @@
 package it.unipi.makermanagerserver.service.endpoint;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
 import it.unipi.makermanagerserver.dto.catalogo.ElementoCatalogoRequestDTO;
 import it.unipi.makermanagerserver.dto.catalogo.ElementoCatalogoResponseDTO;
+import it.unipi.makermanagerserver.exception.RisorsaNonTrovataException;
 import it.unipi.makermanagerserver.mapper.ElementoCatalogoMapper;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
@@ -89,14 +89,15 @@ public class CatalogoService {
      * referenziato al momento della cancellazione, il database rifiutera'
      * l'operazione per vincolo di integrita' referenziale: per ora lasciamo
      * che l'eccezione risalga al controller, che la trasformera' in una
-     * risposta HTTP di errore.
+     * risposta HTTP di errore generica (500) tramite il GlobalExceptionHandler.
      * 
      * @param id id dell'elemento da eliminare
+     * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun elemento esistente
      */
     public void elimina(Long id) {
 
         if (!catalogoRepo.existsById(id)) {
-            throw new NoSuchElementException(
+            throw new RisorsaNonTrovataException(
                 "ElementoCatalogo con id " + id + " non trovato"
             );
         }

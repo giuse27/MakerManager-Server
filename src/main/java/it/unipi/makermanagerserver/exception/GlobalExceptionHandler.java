@@ -13,14 +13,18 @@ import java.util.Map;
 /**
  * Intercettore globale degli errori per l'applicazione.
  * Converte le eccezioni Java in risposte JSON standardizzate per il Client JavaFX.
- * 
- * Generato da Gemini 3.1 Pro
+ *
+ * Ogni handler e' agganciato al TIPO dell'eccezione (non al testo del suo
+ * messaggio): questo rende la corrispondenza eccezione -> status HTTP
+ * esplicita e stabile, indipendente da come i messaggi vengono scritti nei
+ * vari service.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Gestisce gli errori generati dalla validazione automatica di @Valid nei controller.
+     * Gestisce gli errori generati dalla validazione automatica di @Valid/@Validated
+     * nei controller (es. campi @NotBlank, @Min, @NotNull nei DTO di richiesta).
      * Restituisce una mappa con i campi errati e i relativi messaggi di errore.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,23 +40,45 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Gestisce i casi in cui una risorsa richiesta (Utente, Inventario, Articolo) non esista nel DB.
-     * Nota: Puoi lanciare questa eccezione personalizzata (es. ResourceNotFoundException) dal tuo Service.
+     * Gestisce i casi in cui una risorsa richiesta (Inventario, ElementoCatalogo,
+     * ArticoloInventario, ProgettoMaker, ...) non esista nel DB.
+     * I service lanciano RisorsaNonTrovataException quando un id passato
+     * non corrisponde a nessuna entita' esistente.
      */
-    @ExceptionHandler(RuntimeException.class) // Puoi raffinarla creando una tua eccezione specifica
+    @ExceptionHandler(RisorsaNonTrovataException.class)
+    public ResponseEntity<Map<String, String>> handleRisorsaNonTrovata(RisorsaNonTrovataException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errore", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
+     * Gestisce i casi in cui un dato fornito in input non sia valido: valori
+     * di enum sconosciuti, riferimenti testuali non risolvibili nel JSON di
+     * inizializzazione, e simili. I service lanciano DatiNonValidiException
+     * per questi casi.
+     */
+    @ExceptionHandler(DatiNonValidiException.class)
+    public ResponseEntity<Map<String, String>> handleDatiNonValidi(DatiNonValidiException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errore", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Fallback per qualsiasi altra eccezione non intercettata dagli handler
+     * specifici sopra: bug non previsti, NullPointerException, errori interni
+     * generici. Risponde sempre con 500 Internal Server Error: a differenza
+     * della versione precedente, NON tenta piu' di indovinare uno status
+     * diverso analizzando il testo del messaggio (comportamento fragile e
+     * imprevedibile). Il messaggio esposto al client resta generico per non
+     * rivelare dettagli implementativi interni.
+     */
+    @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.clear();
-        
-        // Se nel Service lanci un messaggio specifico, es: "Inventario non trovato"
-        if (ex.getMessage() != null && (ex.getMessage().contains("non trovato") || ex.getMessage().contains("NotFound"))) {
-            errorResponse.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse); // HTTP 404
-        }
-        
-        // Fallback per altri errori generici a runtime
-        errorResponse.put("error", "Errore interno del server: " + ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse); // HTTP 500
+        errorResponse.put("errore", "Errore interno del server: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
 }

@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.service.endpoint;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
@@ -9,6 +8,7 @@ import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioRequestDTO;
 import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioResponseDTO;
 import it.unipi.makermanagerserver.dto.inventario.InventarioRequestDTO;
 import it.unipi.makermanagerserver.dto.inventario.InventarioResponseDTO;
+import it.unipi.makermanagerserver.exception.RisorsaNonTrovataException;
 import it.unipi.makermanagerserver.mapper.ArticoloInventarioMapper;
 import it.unipi.makermanagerserver.mapper.InventarioMapper;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
@@ -49,7 +49,6 @@ public class InventarioService {
 
     /**
      * Restituisce tutti gli inventari presenti nel database, convertiti in DTO di risposta.
-     * Stesso pattern di CatalogoService.trovaTutti(): stream + map sul mapper + toList().
      */
     public List<InventarioResponseDTO> trovaTuttiGliInventari() {
 
@@ -64,13 +63,12 @@ public class InventarioService {
      * Restituisce il contenuto (lista di articoli) dell'inventario indicato.
      * 
      * @param idInventario id dell'inventario da cercare
-     * @throws NoSuchElementException se l'inventario non esiste (il GlobalExceptionHandler
-     *         la converte in una risposta HTTP 404)
+     * @throws RisorsaNonTrovataException se l'inventario non esiste
      */
     public List<ArticoloInventarioResponseDTO> trovaInventario(Long idInventario) {
 
         Inventario inventario = inventarioRepo.findById(idInventario)
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                         "Inventario con id " + idInventario + " non trovato"
                 ));
 
@@ -119,12 +117,12 @@ public class InventarioService {
      * non serve alcuna cancellazione manuale qui.
      * 
      * @param idInventario id dell'inventario da eliminare
-     * @throws NoSuchElementException se l'inventario non esiste
+     * @throws RisorsaNonTrovataException se l'inventario non esiste
      */
     public void eliminaInventario(Long idInventario) {
 
         if (!inventarioRepo.existsById(idInventario)) {
-            throw new NoSuchElementException(
+            throw new RisorsaNonTrovataException(
                 "Inventario con id " + idInventario + " non trovato"
             );
         }
@@ -157,12 +155,12 @@ public class InventarioService {
      * l'articolo esista prima di cancellarlo.
      * 
      * @param idArticolo id dell'articolo da eliminare
-     * @throws NoSuchElementException se l'articolo non esiste
+     * @throws RisorsaNonTrovataException se l'articolo non esiste
      */
     public void eliminaArticoloDaInventario(Long idArticolo) {
 
         if (!articoloRepo.existsById(idArticolo)) {
-            throw new NoSuchElementException(
+            throw new RisorsaNonTrovataException(
                 "Articolo con id " + idArticolo + " non trovato"
             );
         }

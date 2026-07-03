@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioRequestDTO;
 import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioResponseDTO;
+import it.unipi.makermanagerserver.exception.RisorsaNonTrovataException;
 import it.unipi.makermanagerserver.factory.ArticoloInventarioFactory;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
@@ -34,17 +35,22 @@ public class ArticoloInventarioMapper {
 
     }
 
+    /**
+     * @throws RisorsaNonTrovataException se l'id dell'elemento di catalogo o
+     *         dell'inventario indicati nel DTO non corrispondono a nessuna
+     *         entita' esistente
+     */
     public ArticoloInventario toArticoloInventario(ArticoloInventarioRequestDTO dto) {
 
         // 1. Cerchiamo l'ElementoCatalogo nel DB usando l'id fornito nel DTO
         ElementoCatalogo elemento = elementoCatalogoRepository.findById(dto.getIdElementoCatalogo())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                         "Impossibile aggiungere l'articolo: Elemento Catalogo non trovato con ID " + dto.getIdElementoCatalogo()
                 ));
 
         // 2. Cerchiamo l'Inventario nel DB usando l'id fornito nel DTO
         Inventario inventario = inventarioRepository.findById(dto.getIdInventario())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                         "Impossibile aggiungere l'articolo: Inventario non trovato con ID " + dto.getIdInventario()
                 ));
 

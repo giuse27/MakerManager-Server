@@ -1,5 +1,6 @@
 package it.unipi.makermanagerserver.factory;
 
+import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
@@ -20,6 +21,10 @@ public class ProgettoMakerFactory {
         );
     }
 
+    /**
+     * @throws DatiNonValidiException se "tipo" non corrisponde a nessuna
+     *         tipologia di progetto supportata
+     */
     public static ProgettoMaker creaProgetto(String tipo) {
         
         return switch (tipo) {
@@ -29,8 +34,8 @@ public class ProgettoMakerFactory {
             case "ROBOTICA" -> new ProgettoRobotica();
             case "SOFTWARE" -> new ProgettoSoftware();
 
-            default -> throw new IllegalArgumentException(
-                "Tipologia di articolo non ancora supportata: " + tipo 
+            default -> throw new DatiNonValidiException(
+                "Tipologia di progetto non ancora supportata: " + tipo 
             );
 
         };

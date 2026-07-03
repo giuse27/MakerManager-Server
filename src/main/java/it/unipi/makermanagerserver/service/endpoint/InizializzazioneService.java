@@ -19,6 +19,7 @@ import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.factory.ArticoloInventarioFactory;
 import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
@@ -120,12 +121,12 @@ public class InizializzazioneService {
 
         Map<String, ElementoCatalogo> res = new HashMap<>();
 
-        for (ElementoCatalogoInitDTO dto : dati.getCatalogo()) {
+        for (ElementoCatalogoInitDTO dto : elencoSicuro(dati.getCatalogo())) {
 
             ElementoCatalogo elemento = new ElementoCatalogo(
                 dto.getNome(), 
                 dto.getDescrizione(), 
-                TipologiaElemento.valueOf(dto.getTipologia())
+                risolviTipologia(dto.getTipologia())
             );
             catalogoRepo.save(elemento);
             res.put(dto.getNome(), elemento);
@@ -142,7 +143,7 @@ public class InizializzazioneService {
 
         Map<String, Inventario> res = new HashMap<>();
 
-        for (InventarioInitDTO dto : dati.getInventari()) {
+        for (InventarioInitDTO dto : elencoSicuro(dati.getInventari())) {
 
             Inventario inventario = new Inventario(
                 dto.getNome(), 
@@ -167,7 +168,7 @@ public class InizializzazioneService {
 
         int count = 0;
 
-        for (ArticoloInventarioInitDTO dto : dati.getArticoliInventario()) {
+        for (ArticoloInventarioInitDTO dto : elencoSicuro(dati.getArticoliInventario())) {
 
             ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, dto.getElementoCatalogo());
             Inventario inventario = risolviInventario(inventarioPerNome, dto.getInventario());
@@ -193,7 +194,7 @@ public class InizializzazioneService {
 
         int count = 0;
 
-        for (ProgettoInitDTO dto : dati.getProgetti()) {
+        for (ProgettoInitDTO dto : elencoSicuro(dati.getProgetti())) {
 
             ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(dto.getTipo());
 
@@ -215,7 +216,7 @@ public class InizializzazioneService {
         
         BOM bom = new BOM();
 
-        for (RigaBOMInitDTO rigaDto : righeDto) {
+        for (RigaBOMInitDTO rigaDto : elencoSicuro(righeDto)) {
             
             ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, rigaDto.getElementoCatalogo());
             bom.aggiungiRiga(new RigaBOM(elemento, rigaDto.getQuantita()));
@@ -241,19 +242,46 @@ public class InizializzazioneService {
             
             // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
             // non c'e' nulla da inizializzare. Lo trasformiamo in una
-            // RuntimeException non controllata, che il controller potra'
-            // intercettare per restituire un errore HTTP appropriato.
+            // RuntimeException non controllata, che il GlobalExceptionHandler
+            // intercettera' con l'handler di fallback restituendo un 500:
+            // e' corretto che sia un 500 (non un errore dell'utente/client,
+            // ma una configurazione mancante lato server).
             throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
 
         }
     }
 
+    // ### Utility per liste potenzialmente assenti nel JSON ###
+
+    /**
+     * Se una sezione del JSON di inizializzazione viene omessa (es. il
+     * file non contiene affatto la chiave "progetti"), Jackson lascia il
+     * campo corrispondente a null invece di una lista vuota. Questo
+     * metodo evita NullPointerException nei cicli for-each, trattando
+     * una sezione assente come "nessun elemento da caricare" invece che
+     * come un errore.
+     */
+    private <T> List<T> elencoSicuro(List<T> lista) {
+        return lista != null ? lista : List.of();
+    }
+
     // ### Utility per risoluzione di riferimenti testuali ###
+
+    private TipologiaElemento risolviTipologia(String tipologia) {
+        try {
+            return TipologiaElemento.valueOf(tipologia);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia '" + tipologia + "' non valida nel JSON di inizializzazione. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaElemento.values())
+            );
+        }
+    }
 
     private ElementoCatalogo risolviElementoCatalogo(Map<String, ElementoCatalogo> catalogoPerNome, String nome) {
         ElementoCatalogo elemento = catalogoPerNome.get(nome);
         if (elemento == null) {
-            throw new IllegalStateException(
+            throw new DatiNonValidiException(
                     "Riferimento non valido nel JSON di inizializzazione: ElementoCatalogo '" + nome + "' non trovato.");
         }
         return elemento;
@@ -262,7 +290,7 @@ public class InizializzazioneService {
     private Inventario risolviInventario(Map<String, Inventario> inventariPerNome, String nome) {
         Inventario inventario = inventariPerNome.get(nome);
         if (inventario == null) {
-            throw new IllegalStateException(
+            throw new DatiNonValidiException(
                     "Riferimento non valido nel JSON di inizializzazione: Inventario '" + nome + "' non trovato.");
         }
         return inventario;

@@ -1,6 +1,7 @@
 package it.unipi.makermanagerserver.factory;
 
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
 import it.unipi.makermanagerserver.model.inventory.Inventario;
@@ -24,6 +25,10 @@ public class ArticoloInventarioFactory {
     /**
      * Factory per istanziare la sottoclasse corretta di ArticoloInventario
      * sulla base del campo "tipo" proveniente dal JSON.
+     * 
+     * @throws DatiNonValidiException se "tipo" non corrisponde a nessun
+     *         valore di TipologiaElemento, o corrisponde a una tipologia
+     *         non ancora supportata da questa factory
      */
     public static ArticoloInventario creaArticoloInventario(
             String tipo,
@@ -32,14 +37,22 @@ public class ArticoloInventarioFactory {
             int quantita
     ) {
 
-        TipologiaElemento tipologia = TipologiaElemento.valueOf(tipo);
+        TipologiaElemento tipologia;
+        try {
+            tipologia = TipologiaElemento.valueOf(tipo);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia di articolo '" + tipo + "' non valida. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaElemento.values())
+            );
+        }
 
         return switch (tipologia) {
 
             case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
             case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
             
-            default -> throw new IllegalArgumentException(
+            default -> throw new DatiNonValidiException(
                 "Tipologia di articolo non ancora supportata: " + tipo 
             );
             
