@@ -1,5 +1,7 @@
 package it.unipi.makermanagerserver.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioRequestDTO;
+import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioResponseDTO;
+import it.unipi.makermanagerserver.dto.inventario.InventarioRequestDTO;
+import it.unipi.makermanagerserver.dto.inventario.InventarioResponseDTO;
 import it.unipi.makermanagerserver.service.endpoint.InventarioService;
 
 /**
@@ -37,7 +43,7 @@ public class InventarioController {
      * Restituisce l'elenco di inventari presenti nel database 
      */
     @GetMapping
-    public ResponseEntity<?> trovaTuttiGliInventari() {
+    public ResponseEntity<List<InventarioResponseDTO>> trovaTuttiGliInventari() {
 
         // TODO
 
@@ -52,7 +58,9 @@ public class InventarioController {
      * contrassegnato da id
      */
     @GetMapping("/{idInventario}")
-    public ResponseEntity<?> trovaInventario(@PathVariable Long idInventario) {
+    public ResponseEntity<List<ArticoloInventarioResponseDTO>> trovaInventario(
+        @PathVariable Long idInventario
+    ) {
 
         // TODO
 
@@ -66,7 +74,9 @@ public class InventarioController {
      * Restituisce l'elenco di inventari associati a un utente
      */
     @GetMapping("/utente/{idUtente}")
-    public ResponseEntity<?> trovaInventariUtente(@PathVariable Long idUtente) {
+    public ResponseEntity<List<InventarioResponseDTO>> trovaInventariUtente(
+        @PathVariable Long idUtente
+    ) {
 
         // TODO
 
@@ -81,8 +91,8 @@ public class InventarioController {
      * L'annotazione @Validated intercetta i vincoli del DTO prima di passare al Service.
      */
     @PostMapping
-    public ResponseEntity<?> creaInventario(
-        @Validated @RequestBody Object inventarioDTO
+    public ResponseEntity<InventarioResponseDTO> creaInventario(
+        @Validated @RequestBody InventarioRequestDTO inventario
     ) {
         
         // TODO
@@ -97,7 +107,7 @@ public class InventarioController {
      * Elimina l'inventario a partire dal suo id
      */
     @DeleteMapping("/{idInventario}")
-    public ResponseEntity<?> eliminaInventario(@PathVariable Long idInventario) {
+    public ResponseEntity<Void> eliminaInventario(@PathVariable Long idInventario) {
 
         // TODO
 
@@ -112,9 +122,9 @@ public class InventarioController {
      * specificate nel body
      */
     @PostMapping("/{idInventario}/articoli")
-    public ResponseEntity<?> creaArticoloInventario(
+    public ResponseEntity<ArticoloInventarioResponseDTO> creaArticoloInventario(
         @PathVariable Long idInventario,
-        @Validated @RequestBody Object articoloInventarioDTO
+        @Validated @RequestBody ArticoloInventarioRequestDTO articolo
     ) {
 
         // TODO
@@ -129,7 +139,7 @@ public class InventarioController {
      * Elimina l'articolo contrassegnato da idArticolo dall'inventario id
      */
     @DeleteMapping("/{idInventario}/articoli/{idArticolo}")
-    public ResponseEntity<?> eliminaArticoloDaInventario(
+    public ResponseEntity<Void> eliminaArticoloDaInventario(
         @PathVariable Long idInventario,
         @PathVariable Long idArticolo
     ) {
