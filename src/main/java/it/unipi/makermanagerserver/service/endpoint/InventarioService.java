@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import it.unipi.makermanagerserver.mapper.ArticoloInventarioMapper;
 import it.unipi.makermanagerserver.mapper.InventarioMapper;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
+import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 import it.unipi.makermanagerserver.repository.InventarioRepository;
 
 /**
@@ -19,18 +20,21 @@ public class InventarioService {
     private final ArticoloInventarioRepository articoloRepo;
     private final InventarioMapper inventarioMapper;
     private final ArticoloInventarioMapper articoloMapper;
+    private final ElementoCatalogoRepository elementoRepo;
 
     public InventarioService(
         InventarioRepository inventarioRepo,
         ArticoloInventarioRepository articoloRepo,
         InventarioMapper inventarioMapper,
-        ArticoloInventarioMapper articoloMapper
+        ArticoloInventarioMapper articoloMapper,
+        ElementoCatalogoRepository elementoRepo
     ) {
 
         this.inventarioRepo = inventarioRepo;
         this.articoloRepo = articoloRepo;
         this.inventarioMapper = inventarioMapper;
         this.articoloMapper = articoloMapper;
+        this.elementoRepo = elementoRepo;
 
     }
 
