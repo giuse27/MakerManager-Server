@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.dto.init;
+package it.unipi.makermanagerserver.dto.inizializza;
 
 import java.util.List;
 

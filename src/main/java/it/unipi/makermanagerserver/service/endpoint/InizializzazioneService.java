@@ -1,4 +1,4 @@
-package it.unipi.makermanagerserver.service;
+package it.unipi.makermanagerserver.service.endpoint;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,25 +12,23 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.unipi.makermanagerserver.dto.init.ArticoloInventarioInitDTO;
-import it.unipi.makermanagerserver.dto.init.CatalogoInitDTO;
-import it.unipi.makermanagerserver.dto.init.ElementoCatalogoInitDTO;
-import it.unipi.makermanagerserver.dto.init.InventarioInitDTO;
-import it.unipi.makermanagerserver.dto.init.ProgettoInitDTO;
-import it.unipi.makermanagerserver.dto.init.RigaBOMInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ArticoloInventarioInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.CatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ElementoCatalogoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.enums.TipologiaProgetto;
+import it.unipi.makermanagerserver.exception.DatiNonValidiException;
+import it.unipi.makermanagerserver.factory.ArticoloInventarioFactory;
+import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
 import it.unipi.makermanagerserver.model.inventory.Inventario;
-import it.unipi.makermanagerserver.model.inventory.specific.ComponenteElettronico;
-import it.unipi.makermanagerserver.model.inventory.specific.MaterialeConsumabile;
 import it.unipi.makermanagerserver.model.project.BOM;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.RigaBOM;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoSoftware;
-import it.unipi.makermanagerserver.model.project.specific.ProgettoStampa3D;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 import it.unipi.makermanagerserver.repository.InventarioRepository;
@@ -80,9 +78,9 @@ public class InizializzazioneService {
     /**
      * Cancella tutti i dati esistenti e ricarica integralmente dal JSON.
      *
-     * @Transactional: l'intera operazione viene eseguita come un'unica
-     * transazione DB. Se qualcosa fallisce a meta' (es. un riferimento nel
-     * JSON che non trova corrispondenza), Spring esegue il rollback
+     * Annotazione @Transactional: l'intera operazione viene eseguita come 
+     * un'unica transazione DB. Se qualcosa fallisce a meta' (es. un riferimento 
+     * nel JSON che non trova corrispondenza), Spring esegue il rollback
      * automatico e il database torna allo stato precedente, invece di
      * restare in uno stato parziale/inconsistente.
      */
@@ -101,24 +99,6 @@ public class InizializzazioneService {
         caricaProgetti(dati, catalogoPerNome);        
 
         logger.info("Inizializzazione completata con successo");
-    }
-
-    // Lettura del file json
-    private CatalogoInitDTO leggiJson() {
-
-        try (InputStream inputStream = new ClassPathResource(PERCORSO_JSON).getInputStream()) {
-            
-            return objectMapper.readValue(inputStream, CatalogoInitDTO.class);
-
-        } catch (IOException e) {
-            
-            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
-            // non c'e' nulla da inizializzare. Lo trasformiamo in una
-            // RuntimeException non controllata, che il controller potra'
-            // intercettare per restituire un errore HTTP appropriato.
-            throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
-
-        }
     }
 
     // Cancellazione dei dati esistenti
@@ -142,12 +122,12 @@ public class InizializzazioneService {
 
         Map<String, ElementoCatalogo> res = new HashMap<>();
 
-        for (ElementoCatalogoInitDTO dto : dati.getCatalogo()) {
+        for (ElementoCatalogoInitDTO dto : elencoSicuro(dati.getCatalogo())) {
 
             ElementoCatalogo elemento = new ElementoCatalogo(
                 dto.getNome(), 
                 dto.getDescrizione(), 
-                TipologiaElemento.valueOf(dto.getTipologia())
+                risolviTipologiaElemento(dto.getTipologia())
             );
             catalogoRepo.save(elemento);
             res.put(dto.getNome(), elemento);
@@ -164,7 +144,7 @@ public class InizializzazioneService {
 
         Map<String, Inventario> res = new HashMap<>();
 
-        for (InventarioInitDTO dto : dati.getInventari()) {
+        for (InventarioInitDTO dto : elencoSicuro(dati.getInventari())) {
 
             Inventario inventario = new Inventario(
                 dto.getNome(), 
@@ -189,12 +169,14 @@ public class InizializzazioneService {
 
         int count = 0;
 
-        for (ArticoloInventarioInitDTO dto : dati.getArticoliInventario()) {
+        for (ArticoloInventarioInitDTO dto : elencoSicuro(dati.getArticoliInventario())) {
 
             ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, dto.getElementoCatalogo());
             Inventario inventario = risolviInventario(inventarioPerNome, dto.getInventario());
 
-            ArticoloInventario articolo = creaArticoloInventario(dto.getTipo(), elemento, inventario, dto.getQuantita());
+            ArticoloInventario articolo = ArticoloInventarioFactory.creaArticoloInventario(
+                dto.getTipo(), elemento, inventario, dto.getQuantita()
+            );
 
             // aggiungiArticolo mantiene coerenti entrambi i lati della relazione
             // bidirezionale (vedi Inventario.aggiungiArticolo)
@@ -208,40 +190,14 @@ public class InizializzazioneService {
 
     }
 
-    /*
-     * Factory minimale per istanziare la sottoclasse corretta di ArticoloInventario
-     * sulla base del campo "tipo" del json
-     */
-    private ArticoloInventario creaArticoloInventario(
-        String tipo,
-        ElementoCatalogo elemento,
-        Inventario inventario,
-        int quantita
-    ) {
-
-        TipologiaElemento tipologia = TipologiaElemento.valueOf(tipo);
-
-        return switch (tipologia) {
-
-            case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
-            case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
-            
-            default -> throw new IllegalArgumentException(
-                "Tipologia di articolo non ancora supportata: " + tipo 
-            );
-
-        };
-
-    }
-
     // Caricamento di ProgettoMaker + BOM (dipende da ElementoCatalogo)
     private void caricaProgetti(CatalogoInitDTO dati, Map<String, ElementoCatalogo> catalogoPerNome) {
 
         int count = 0;
 
-        for (ProgettoInitDTO dto : dati.getProgetti()) {
+        for (ProgettoInitDTO dto : elencoSicuro(dati.getProgetti())) {
 
-            ProgettoMaker progetto = creaProgetto(dto.getTipo());
+            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(risolviTipologiaProgetto(dto.getTipo()));
 
             progetto.setNome(dto.getNome());
             progetto.setDescrizione(dto.getDescrizione());
@@ -256,33 +212,12 @@ public class InizializzazioneService {
 
     }
 
-    /*
-     * Factory minimale per istanziare la sottoclasse corretta di ProgettoMaker
-     * sulla base del campo "tipo" del json
-     */
-    private ProgettoMaker creaProgetto(String tipo) {
-
-        return switch (tipo) {
-
-            case "STAMPA_3D" -> new ProgettoStampa3D();
-            case "ELETTRONICA" -> new ProgettoElettronica();
-            case "ROBOTICA" -> new ProgettoRobotica();
-            case "SOFTWARE" -> new ProgettoSoftware();
-
-            default -> throw new IllegalArgumentException(
-                "Tipologia di articolo non ancora supportata: " + tipo 
-            );
-
-        };
-
-    }
-
     // Creazione della BOM
     private BOM creaBOM(List<RigaBOMInitDTO> righeDto, Map<String, ElementoCatalogo> catalogoPerNome) {
         
         BOM bom = new BOM();
 
-        for (RigaBOMInitDTO rigaDto : righeDto) {
+        for (RigaBOMInitDTO rigaDto : elencoSicuro(righeDto)) {
             
             ElementoCatalogo elemento = risolviElementoCatalogo(catalogoPerNome, rigaDto.getElementoCatalogo());
             bom.aggiungiRiga(new RigaBOM(elemento, rigaDto.getQuantita()));
@@ -293,13 +228,72 @@ public class InizializzazioneService {
 
     }
 
+    // #########################################################################
+    // ------------------------- UTILITY PRIVATE -------------------------------
+    // #########################################################################
+
+    // ### Utility per la lettura del file JSON
+    private CatalogoInitDTO leggiJson() {
+
+        try (InputStream inputStream = new ClassPathResource(PERCORSO_JSON).getInputStream()) {
+            
+            return objectMapper.readValue(inputStream, CatalogoInitDTO.class);
+
+        } catch (IOException e) {
+            
+            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
+            // non c'e' nulla da inizializzare. Lo trasformiamo in una
+            // RuntimeException non controllata, che il GlobalExceptionHandler
+            // intercettera' con l'handler di fallback restituendo un 500:
+            // e' corretto che sia un 500 (non un errore dell'utente/client,
+            // ma una configurazione mancante lato server).
+            throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
+
+        }
+    }
+
+    // ### Utility per liste potenzialmente assenti nel JSON ###
+
+    /**
+     * Se una sezione del JSON di inizializzazione viene omessa (es. il
+     * file non contiene affatto la chiave "progetti"), Jackson lascia il
+     * campo corrispondente a null invece di una lista vuota. Questo
+     * metodo evita NullPointerException nei cicli for-each, trattando
+     * una sezione assente come "nessun elemento da caricare" invece che
+     * come un errore.
+     */
+    private <T> List<T> elencoSicuro(List<T> lista) {
+        return lista != null ? lista : List.of();
+    }
 
     // ### Utility per risoluzione di riferimenti testuali ###
+
+    private TipologiaElemento risolviTipologiaElemento(String tipologia) {
+        try {
+            return TipologiaElemento.valueOf(tipologia);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia '" + tipologia + "' non valida nel JSON di inizializzazione. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaElemento.values())
+            );
+        }
+    }
+
+    private TipologiaProgetto risolviTipologiaProgetto(String tipologia) {
+        try {
+            return TipologiaProgetto.valueOf(tipologia);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia '" + tipologia + "' non valida nel JSON di inizializzazione. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaProgetto.values())
+            );
+        }
+    }
 
     private ElementoCatalogo risolviElementoCatalogo(Map<String, ElementoCatalogo> catalogoPerNome, String nome) {
         ElementoCatalogo elemento = catalogoPerNome.get(nome);
         if (elemento == null) {
-            throw new IllegalStateException(
+            throw new DatiNonValidiException(
                     "Riferimento non valido nel JSON di inizializzazione: ElementoCatalogo '" + nome + "' non trovato.");
         }
         return elemento;
@@ -308,7 +302,7 @@ public class InizializzazioneService {
     private Inventario risolviInventario(Map<String, Inventario> inventariPerNome, String nome) {
         Inventario inventario = inventariPerNome.get(nome);
         if (inventario == null) {
-            throw new IllegalStateException(
+            throw new DatiNonValidiException(
                     "Riferimento non valido nel JSON di inizializzazione: Inventario '" + nome + "' non trovato.");
         }
         return inventario;

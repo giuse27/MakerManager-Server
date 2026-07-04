@@ -1,5 +1,6 @@
 package it.unipi.makermanagerserver.repository;
 
+import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,8 @@ public interface ProgettoMakerRepository extends JpaRepository<ProgettoMaker, Lo
     // JPA permette di navigare dentro gli oggetti @Embedded
     // Questo metodo cerca i progetti in base allo stato contenuto dentro la classe Progresso
     List<ProgettoMaker> findByProgressoStatoAvanzamento(String stato);
+
+    // trova progetti per tipologia
+    List<ProgettoMaker> findByTipologia(TipologiaProgetto tipologia);
 
 }
