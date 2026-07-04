@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.controller;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,20 +67,15 @@ public class CatalogoController {
      * elimina l'elemento in catalogo con l'id indicato.
      * Risponde con 204 No Content se la cancellazione ha successo,
      * 404 Not Found se l'id non corrisponde a nessun elemento esistente.
+     * Se l'id non corrisponde a nessun elemento esistente, il service lancia
+     * RisorsaNonTrovataException: la lasciamo risalire al
+     * GlobalExceptionHandler, che risponde con 404 e corpo JSON coerente.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> elimina(@PathVariable Long id) {
 
-        try {
-
-            catalogoService.elimina(id);
-            return ResponseEntity.noContent().build();
-
-        } catch (NoSuchElementException e) {
-
-            return ResponseEntity.notFound().build();
-
-        }
+        catalogoService.elimina(id);
+        return ResponseEntity.noContent().build();
 
     }
     

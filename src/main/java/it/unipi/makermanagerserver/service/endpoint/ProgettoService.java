@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.service.endpoint;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
@@ -9,6 +8,7 @@ import it.unipi.makermanagerserver.dto.progetto.ProgettoRequestDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoResponseDTO;
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
+import it.unipi.makermanagerserver.exception.RisorsaNonTrovataException;
 import it.unipi.makermanagerserver.mapper.ProgettoMapper;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
@@ -50,11 +50,12 @@ public class ProgettoService {
      * 
      * @param idProgetto id del progetto da visualizzare
      * @return Restituisce il progetto dto contrassegnato da idProgetto
+     * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun progetto esistente
      */
     public ProgettoResponseDTO trovaPerId(Long idProgetto) {
 
         ProgettoMaker progetto = progettoRepo.findById(idProgetto)
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                     "ProgettoMaker con id " + idProgetto + " non trovato"
                 ));
  
@@ -104,12 +105,13 @@ public class ProgettoService {
      * Elimina il progetto desiderato
      * 
      * @param idProgetto id del progetto da eliminare
+     * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun progetto esistente
      */
     public void elimina(Long idProgetto) {
 
         if (!progettoRepo.existsById(idProgetto)) {
 
-            throw new NoSuchElementException(
+            throw new RisorsaNonTrovataException(
                 "ProgettoMaker con id " + idProgetto + " non trovato"
             );
 

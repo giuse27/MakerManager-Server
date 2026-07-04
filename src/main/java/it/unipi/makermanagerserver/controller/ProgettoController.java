@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.controller;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,22 +46,18 @@ public class ProgettoController {
     /**
      * GET /api/progetti/{idProgetto}
      * 
-     * trova un progetto a partire dal suo id
+     * trova un progetto a partire dal suo id.
+     * Se l'id non corrisponde a nessun progetto esistente, il service lancia
+     * RisorsaNonTrovataException: la lasciamo risalire, ci pensa il
+     * GlobalExceptionHandler a restituire 404 con corpo JSON coerente
+     * con tutti gli altri endpoint del progetto.
      */
     @GetMapping("/{idProgetto}")
     public ResponseEntity<ProgettoResponseDTO> trovaProgetto(
         @PathVariable Long idProgetto
     ) {
 
-        try {
- 
-            return ResponseEntity.ok(progettoService.trovaPerId(idProgetto));
- 
-        } catch (NoSuchElementException e) {
- 
-            return ResponseEntity.notFound().build();
- 
-        }
+        return ResponseEntity.ok(progettoService.trovaPerId(idProgetto));
 
     }
 
@@ -101,23 +96,16 @@ public class ProgettoController {
      * DELETE /api/progetti/{id}
      * 
      * elimina il progetto con l'id indicato.
-     * Risponde 204 No Content se la cancellazione ha successo,
-     * 404 Not Found se l'id non corrisponde a nessun progetto esistente.
+     * Risponde 204 No Content se la cancellazione ha successo.
+     * Se l'id non corrisponde a nessun progetto esistente, il service lancia
+     * RisorsaNonTrovataException: la lasciamo risalire al
+     * GlobalExceptionHandler, che risponde con 404 e corpo JSON coerente.
      */
     @DeleteMapping("/{idProgetto}")
     public ResponseEntity<Void> eliminaProgetto(@PathVariable Long idProgetto) {
 
-        try {
- 
-            progettoService.elimina(idProgetto);
-            return ResponseEntity.noContent().build();
- 
-        } catch (NoSuchElementException e) {
- 
-            return ResponseEntity.notFound().build();
- 
-        }
-
+        progettoService.elimina(idProgetto);
+        return ResponseEntity.noContent().build();
 
     }
 
