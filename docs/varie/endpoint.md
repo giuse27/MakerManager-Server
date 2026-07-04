@@ -15,6 +15,12 @@
     - [Elimina un inventario a partire dal suo `id`](#elimina-un-inventario-a-partire-dal-suo-id)
     - [Aggiungi un articolo a un inventario](#aggiungi-un-articolo-a-un-inventario)
     - [Elimina un articolo dall'inventario a partire dal suo `id`](#elimina-un-articolo-dallinventario-a-partire-dal-suo-id)
+  - [Progetti](#progetti)
+    - [Visualizza tutti i progetti](#visualizza-tutti-i-progetti)
+    - [Visualizza un progetto a partire dal suo `id`](#visualizza-un-progetto-a-partire-dal-suo-id)
+    - [Visualizza i progetti di una tipologia](#visualizza-i-progetti-di-una-tipologia)
+    - [Crea un nuovo progetto](#crea-un-nuovo-progetto)
+    - [Elimina un progetto a partire dal suo `id`](#elimina-un-progetto-a-partire-dal-suo-id)
 
 ## Inizializzazione
 
@@ -191,4 +197,83 @@ Consente l'eliminazione dell'articolo indicato da `{idArticolo}`. Non è necessa
 **Esempio da terminale:**
 ```bash
 curl -v -X DELETE http://localhost:8080/api/inventario/articoli/{idArticolo}
+```
+
+## Progetti
+
+### Visualizza tutti i progetti
+
+```js
+GET http://localhost:8080/api/progetti
+```
+
+Restituisce la lista completa dei progetti presenti in catalogo.
+
+**Esempio da terminale:**
+```bash
+curl -v -X GET http://localhost:8080/api/progetti
+```
+
+### Visualizza un progetto a partire dal suo `id`
+
+```js
+GET http://localhost:8080/api/progetti/{idProgetto}
+```
+
+Restituisce il progetto indicato da `{idProgetto}`. Risponde con 404 Not Found se l'id non corrisponde a nessun progetto esistente.
+
+**Esempio da terminale:**
+```bash
+curl -v -X GET http://localhost:8080/api/progetti/{idProgetto}
+```
+
+### Visualizza i progetti di una tipologia
+
+```js
+GET http://localhost:8080/api/progetti/tipologia/{tipologia}
+```
+
+Restituisce l'elenco dei progetti appartenenti alla tipologia indicata (`STAMPA_3D`, `ELETTRONICA`, `ROBOTICA`, `SOFTWARE`).
+
+**Esempio da terminale:**
+```bash
+curl -v -X GET http://localhost:8080/api/progetti/tipologia/STAMPA_3D
+```
+
+### Crea un nuovo progetto
+
+> [!note]
+> Il progetto viene creato con la B.O.M. (distinta base) vuota: la gestione delle righe della B.O.M. sarà affidata a endpoint dedicati in uno step successivo.
+
+```js
+POST http://localhost:8080/api/progetti
+```
+
+Permette la creazione di un nuovo progetto, specificando tipologia, nome e descrizione. Il campo `tipo` deve corrispondere a uno dei valori validi (`STAMPA_3D`, `ELETTRONICA`, `ROBOTICA`, `SOFTWARE`).
+
+**Esempio da terminale:**
+```bash
+curl -X POST http://localhost:8080/api/progetti \
+     -H "Content-Type: application/json" \
+     -d '{
+           "tipo": "STAMPA_3D",
+           "nome": "Progetto per test",
+           "descrizione": "test dell'endpoint POST /api/progetti"
+         }'
+```
+
+### Elimina un progetto a partire dal suo `id`
+
+> [!note]
+> L'eliminazione di un progetto è distruttiva: cancella automaticamente anche tutte le righe della sua B.O.M. (relazione `BOM` → `RigaBOM` con `cascade = CascadeType.ALL` e `orphanRemoval = true`). Non richiede la rimozione preventiva delle singole righe.
+
+```js
+DELETE http://localhost:8080/api/progetti/{idProgetto}
+```
+
+Consente l'eliminazione del progetto indicato da `{idProgetto}`. Risponde con 204 No Content se la cancellazione ha successo, 404 Not Found se l'id non corrisponde a nessun progetto esistente.
+
+**Esempio da terminale:**
+```bash
+curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}
 ```
