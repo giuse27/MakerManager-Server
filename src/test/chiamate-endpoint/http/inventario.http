@@ -1,0 +1,141 @@
+### Variabili
+@baseUrl = http://localhost:8080
+
+### -----------------------------------------------------------------------
+### INVENTARIO — /api/inventario
+### -----------------------------------------------------------------------
+
+
+
+### -----------------------------------------------------------------------
+### Visualizza tutti gli inventari
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario
+### -----------------------------------------------------------------------
+# NB: sostituisci {{idInventario}} con un id reale (es. dopo /inizializza)
+@idInventario = 1
+GET {{baseUrl}}/api/inventario/{{idInventario}}
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/999999
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario che esiste ma senza articoli
+### -----------------------------------------------------------------------
+# NB: crea prima un inventario "vuoto" con la POST qui sotto e usane l'id.
+# Risposta attesa: [] (non un errore)
+@idInventarioVuoto = 3
+GET {{baseUrl}}/api/inventario/{{idInventarioVuoto}}
+
+### -----------------------------------------------------------------------
+### Visualizza gli inventari di un utente
+### -----------------------------------------------------------------------
+@idUtente = 1
+GET {{baseUrl}}/api/inventario/utente/{{idUtente}}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo inventario
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/inventario
+Content-Type: application/json
+
+{
+  "nome": "Il mio primo inventario",
+  "idUtente": 1
+}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo inventario con nome mancante (per testare la validazione @NotBlank -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/inventario
+Content-Type: application/json
+
+{
+  "idUtente": 1
+}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo inventario SENZA idUtente ("orfano")
+### -----------------------------------------------------------------------
+# NB: InventarioRequestDTO.idUtente non ha @NotNull, quindi oggi questo è
+# legittimo (coerente con la roadmap: l'entità Utente arriva in una versione
+# futura). Risposta attesa: 201 Created con idUtente: null nel body.
+POST {{baseUrl}}/api/inventario
+Content-Type: application/json
+
+{
+  "nome": "Inventario senza proprietario"
+}
+
+### -----------------------------------------------------------------------
+### Elimina un inventario a partire dal suo id
+### -----------------------------------------------------------------------
+# ATTENZIONE: elimina in cascata tutti gli articoli contenuti
+@idInventarioDaEliminare = 2
+DELETE {{baseUrl}}/api/inventario/{{idInventarioDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina un inventario con id inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/inventario/999999
+
+
+
+
+
+### -----------------------------------------------------------------------
+### ARTICOLI INVENTARIO — /api/inventario/articoli
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Aggiungi un articolo a un inventario
+### -----------------------------------------------------------------------
+# NB: idElementoCatalogo e idInventario devono già esistere nel DB
+POST {{baseUrl}}/api/inventario/articoli
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "idInventario": 1,
+  "quantita": 2
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi un articolo con quantità non valida (per testare @Min -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/inventario/articoli
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "idInventario": 1,
+  "quantita": 0
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi un articolo riferendo un elemento di catalogo inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/inventario/articoli
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 999999,
+  "idInventario": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Elimina un articolo dall'inventario a partire dal suo id
+### -----------------------------------------------------------------------
+@idArticolo = 1
+DELETE {{baseUrl}}/api/inventario/articoli/{{idArticolo}}
+
+### -----------------------------------------------------------------------
+### Elimina un articolo con id inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/inventario/articoli/999999

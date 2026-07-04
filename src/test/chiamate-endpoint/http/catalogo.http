@@ -1,0 +1,75 @@
+### -----------------------------------------------------------------------
+### Variabili
+### -----------------------------------------------------------------------
+@baseUrl = http://localhost:8080
+
+### -----------------------------------------------------------------------
+### CATALOGO — /api/catalogo
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Visualizza tutti gli elementi in catalogo
+### -----------------------------------------------------------------------
+# NB: se il DB è vuoto (mai chiamato /inizializza) la risposta attesa è []
+GET {{baseUrl}}/api/catalogo
+
+### -----------------------------------------------------------------------
+### Aggiungi un elemento al catalogo (COMPONENTE_ELETTRONICO)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/catalogo
+Content-Type: application/json
+
+{
+  "nome": "Elemento Test Eliminazione",
+  "descrizione": "Creato solo per essere cancellato",
+  "tipologia": "COMPONENTE_ELETTRONICO"
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi un elemento al catalogo (MATERIALE_CONSUMABILE)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/catalogo
+Content-Type: application/json
+
+{
+  "nome": "Colla a caldo",
+  "descrizione": "Stick di colla per pistola termica",
+  "tipologia": "MATERIALE_CONSUMABILE"
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi un elemento al catalogo con tipologia NON valida (per testare il 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/catalogo
+Content-Type: application/json
+
+{
+  "nome": "Elemento con tipologia sbagliata",
+  "descrizione": "Deve fallire con 400 Bad Request",
+  "tipologia": "TIPOLOGIA_INESISTENTE"
+}
+
+### -----------------------------------------------------------------------
+### Elimina un elemento dal catalogo a partire dal suo id
+### -----------------------------------------------------------------------
+# NB: sostituisci {{idCatalogo}} con un id reale ottenuto dalla GET sopra
+@idCatalogo = 1
+DELETE {{baseUrl}}/api/catalogo/{{idCatalogo}}
+
+### -----------------------------------------------------------------------
+### Elimina un elemento dal catalogo con id inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/catalogo/999999
+
+### -----------------------------------------------------------------------
+### Elimina un elemento ANCORA referenziato da un ArticoloInventario o da una RigaBOM
+### -----------------------------------------------------------------------
+# ATTESO OGGI: 500 Internal Server Error "grezzo" (vincolo di integrità referenziale
+# lato MySQL, non ancora intercettato da un'eccezione dedicata — vedi commento
+# in CatalogoService.elimina()). Non è un bug: è un caso non ancora gestito,
+# utile da osservare per capire cosa mancherà in una versione futura
+# (es. una RisorsaInUsoException -> 409 Conflict).
+# NB: usa un id che sai per certo essere referenziato, es. l'id di
+# "Raspberry Pi 4 Model B" dopo /inizializza (verificalo con la GET sopra)
+@idCatalogoReferenziato = 1
+DELETE {{baseUrl}}/api/catalogo/{{idCatalogoReferenziato}}
