@@ -197,10 +197,13 @@ public class InizializzazioneService {
 
         for (ProgettoInitDTO dto : elencoSicuro(dati.getProgetti())) {
 
-            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(risolviTipologiaProgetto(dto.getTipo()));
+            TipologiaProgetto tipologia = risolviTipologiaProgetto(dto.getTipo());
+
+            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(tipologia);
 
             progetto.setNome(dto.getNome());
             progetto.setDescrizione(dto.getDescrizione());
+            progetto.setTipologia(tipologia);
             progetto.setDistintaBase(creaBOM(dto.getBom(), catalogoPerNome));
 
             progettoRepo.save(progetto);
