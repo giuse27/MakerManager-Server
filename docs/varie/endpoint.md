@@ -258,7 +258,7 @@ curl -X POST http://localhost:8080/api/progetti \
      -d '{
            "tipo": "STAMPA_3D",
            "nome": "Progetto per test",
-           "descrizione": "test dell'endpoint POST /api/progetti"
+           "descrizione": "test endpoint POST /api/progetti"
          }'
 ```
 
