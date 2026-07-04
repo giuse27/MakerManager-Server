@@ -1,7 +1,9 @@
 package it.unipi.makermanagerserver.controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,9 +40,7 @@ public class ProgettoController {
     @GetMapping
     public ResponseEntity<List<ProgettoResponseDTO>> trovaTuttiIProgetti() {
 
-        // TODO
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(progettoService.trovaTutti());
 
     }
     
@@ -50,9 +50,19 @@ public class ProgettoController {
      * trova un progetto a partire dal suo id
      */
     @GetMapping("/{idProgetto}")
-    public ResponseEntity<ProgettoResponseDTO> trovaProgetto(@PathVariable Long id) {
+    public ResponseEntity<ProgettoResponseDTO> trovaProgetto(
+        @PathVariable Long idProgetto
+    ) {
 
-        return ResponseEntity.ok().build();
+        try {
+ 
+            return ResponseEntity.ok(progettoService.trovaPerId(idProgetto));
+ 
+        } catch (NoSuchElementException e) {
+ 
+            return ResponseEntity.notFound().build();
+ 
+        }
 
     }
 
@@ -66,7 +76,15 @@ public class ProgettoController {
         @PathVariable String tipologia
     ) {
 
-        return ResponseEntity.ok().build();
+        try {
+ 
+            return ResponseEntity.ok(progettoService.trovaPerTipologia(tipologia));
+ 
+        } catch (NoSuchElementException e) {
+ 
+            return ResponseEntity.notFound().build();
+ 
+        }
 
     }
 
@@ -82,7 +100,8 @@ public class ProgettoController {
         @Validated @RequestBody ProgettoRequestDTO dtoRichiesta
     ) {
 
-        return ResponseEntity.ok().build();
+        ProgettoResponseDTO dtoRisposta = progettoService.crea(dtoRichiesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoRisposta);
 
     }
 
@@ -93,10 +112,20 @@ public class ProgettoController {
      * Risponde 204 No Content se la cancellazione ha successo,
      * 404 Not Found se l'id non corrisponde a nessun progetto esistente.
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminaProgetto(@PathVariable Long id) {
+    @DeleteMapping("/{idProgetto}")
+    public ResponseEntity<Void> eliminaProgetto(@PathVariable Long idProgetto) {
 
-        return ResponseEntity.ok().build();
+        try {
+ 
+            progettoService.elimina(idProgetto);
+            return ResponseEntity.noContent().build();
+ 
+        } catch (NoSuchElementException e) {
+ 
+            return ResponseEntity.notFound().build();
+ 
+        }
+
 
     }
 
