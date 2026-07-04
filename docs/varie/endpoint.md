@@ -21,6 +21,8 @@
     - [Visualizza i progetti di una tipologia](#visualizza-i-progetti-di-una-tipologia)
     - [Crea un nuovo progetto](#crea-un-nuovo-progetto)
     - [Elimina un progetto a partire dal suo `id`](#elimina-un-progetto-a-partire-dal-suo-id)
+    - [Aggiungi una riga alla BOM di un progetto](#aggiungi-una-riga-alla-bom-di-un-progetto)
+    - [Elimina una riga dalla BOM di un progetto a partire dal suo `id`](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id)
 
 ## Inizializzazione
 
@@ -216,11 +218,14 @@ curl -v -X GET http://localhost:8080/api/progetti
 
 ### Visualizza un progetto a partire dal suo `id`
 
+> [!note]
+> A differenza di `GET /api/progetti` (vista sintetica, senza BOM), questo endpoint restituisce tutti i dettagli del progetto inclusa la sua distinta base (`bom`), con l'elenco delle righe che la compongono.
+
 ```js
 GET http://localhost:8080/api/progetti/{idProgetto}
 ```
 
-Restituisce il progetto indicato da `{idProgetto}`. Risponde con 404 Not Found se l'id non corrisponde a nessun progetto esistente.
+Restituisce il progetto indicato da `{idProgetto}`, comprensivo della sua B.O.M. Risponde con 404 Not Found se l'id non corrisponde a nessun progetto esistente.
 
 **Esempio da terminale:**
 ```bash
@@ -257,8 +262,8 @@ curl -X POST http://localhost:8080/api/progetti \
      -H "Content-Type: application/json" \
      -d '{
            "tipo": "STAMPA_3D",
-           "nome": "Progetto per test",
-           "descrizione": "test endpoint POST /api/progetti"
+           "nome": "Supporto da tavolo per smartphone",
+           "descrizione": "Supporto stampabile in PLA per smartphone e tablet"
          }'
 ```
 
@@ -276,4 +281,38 @@ Consente l'eliminazione del progetto indicato da `{idProgetto}`. Risponde con 20
 **Esempio da terminale:**
 ```bash
 curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}
+```
+
+### Aggiungi una riga alla BOM di un progetto
+
+> [!note]
+> Come per gli articoli in inventario, l'elemento di catalogo richiesto viene indicato tramite il suo `id` (non il nome): va prima recuperato con `GET /api/catalogo`.
+
+```js
+POST http://localhost:8080/api/progetti/{idProgetto}/bom
+```
+
+Aggiunge una nuova riga alla distinta base del progetto indicato da `{idProgetto}`, specificando l'elemento di catalogo richiesto e la quantità. Risponde con 201 Created e il DTO della riga appena creata, 404 Not Found se il progetto non esiste.
+
+**Esempio da terminale:**
+```bash
+curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
+     -H "Content-Type: application/json" \
+     -d '{
+           "idElementoCatalogo": 1,
+           "quantita": 2
+         }'
+```
+
+### Elimina una riga dalla BOM di un progetto a partire dal suo `id`
+
+```js
+DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
+```
+
+Consente l'eliminazione della riga indicata da `{idRiga}` dalla B.O.M. del progetto `{idProgetto}`. Risponde con 204 No Content se la cancellazione ha successo, 404 Not Found se il progetto o la riga non esistono (o la riga non appartiene a quel progetto).
+
+**Esempio da terminale:**
+```bash
+curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
 ```
