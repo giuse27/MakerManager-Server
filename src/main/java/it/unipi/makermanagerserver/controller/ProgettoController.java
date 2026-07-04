@@ -76,15 +76,7 @@ public class ProgettoController {
         @PathVariable String tipologia
     ) {
 
-        try {
- 
-            return ResponseEntity.ok(progettoService.trovaPerTipologia(tipologia));
- 
-        } catch (NoSuchElementException e) {
- 
-            return ResponseEntity.notFound().build();
- 
-        }
+        return ResponseEntity.ok(progettoService.trovaPerTipologia(tipologia));
 
     }
 
