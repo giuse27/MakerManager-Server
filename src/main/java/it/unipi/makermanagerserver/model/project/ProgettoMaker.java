@@ -57,6 +57,8 @@ public abstract class ProgettoMaker {
     // costruttore vuoto per JPA
     public ProgettoMaker() {
         dataCaricamento = LocalDate.now();
+        this.distintaBase = new BOM();
+        this.progresso = new Progresso();
     }
 
     public ProgettoMaker(String nome, String descrizione, TipologiaProgetto tipologia, BOM distintaBase, Progresso progresso, LocalDate dataCaricamento) {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoRequestDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoResponseDTO;
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
+import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.mapper.ProgettoMapper;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
@@ -68,7 +69,17 @@ public class ProgettoService {
      */
     public List<ProgettoResponseDTO> trovaPerTipologia(String tipologia) {
 
-        return progettoRepo.findByTipologia(TipologiaProgetto.valueOf(tipologia))
+        TipologiaProgetto tipologiaValida;
+        try {
+            tipologiaValida = TipologiaProgetto.valueOf(tipologia);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia '" + tipologia + "' non valida. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaProgetto.values())
+            );
+        }
+
+        return progettoRepo.findByTipologia(tipologiaValida)
                 .stream()
                 .map(progettoMapper::toResponseDTO)
                 .toList();

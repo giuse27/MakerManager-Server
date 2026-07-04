@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 
 import it.unipi.makermanagerserver.dto.progetto.ProgettoRequestDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoResponseDTO;
-import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
@@ -56,7 +55,7 @@ public class ProgettoMapper {
 
             throw new DatiNonValidiException(
                 "Tipologia '" + tipologia + "' non valida. Valori ammessi: "
-                + java.util.Arrays.toString(TipologiaElemento.values())
+                + java.util.Arrays.toString(TipologiaProgetto.values())
             );
 
         }
