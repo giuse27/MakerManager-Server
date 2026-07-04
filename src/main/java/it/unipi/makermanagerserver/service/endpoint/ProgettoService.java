@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.service.endpoint;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +11,7 @@ import it.unipi.makermanagerserver.dto.progetto.RigaBOMRequestDTO;
 import it.unipi.makermanagerserver.dto.progetto.RigaBOMResponseDTO;
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
+import it.unipi.makermanagerserver.exception.RisorsaNonTrovataException;
 import it.unipi.makermanagerserver.mapper.ProgettoMapper;
 import it.unipi.makermanagerserver.model.project.BOM;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
@@ -57,7 +57,7 @@ public class ProgettoService {
      * di tutti i dettagli inclusa la B.O.M.
      * 
      * @param idProgetto id del progetto da visualizzare
-     * @throws NoSuchElementException se l'id non corrisponde a nessun progetto esistente
+     * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun progetto esistente
      */
     public ProgettoConBomResponseDTO trovaPerId(Long idProgetto) {
 
@@ -109,13 +109,13 @@ public class ProgettoService {
      * Elimina il progetto desiderato
      * 
      * @param idProgetto id del progetto da eliminare
-     * @throws NoSuchElementException se l'id non corrisponde a nessun progetto esistente
+     * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun progetto esistente
      */
     public void elimina(Long idProgetto) {
 
         if (!progettoRepo.existsById(idProgetto)) {
 
-            throw new NoSuchElementException(
+            throw new RisorsaNonTrovataException(
                 "ProgettoMaker con id " + idProgetto + " non trovato"
             );
 
@@ -137,7 +137,7 @@ public class ProgettoService {
      * @param idProgetto id del progetto a cui aggiungere la riga
      * @param dtoRichiesta dati della riga da aggiungere (id elemento catalogo, quantita)
      * @return il DTO della riga appena creata (comprensivo dell'id generato dal DB)
-     * @throws NoSuchElementException se il progetto non esiste
+     * @throws RisorsaNonTrovataException se il progetto non esiste
      */
     public RigaBOMResponseDTO aggiungiRigaBOM(Long idProgetto, RigaBOMRequestDTO dtoRichiesta) {
 
@@ -162,7 +162,7 @@ public class ProgettoService {
      *
      * @param idProgetto id del progetto proprietario della riga
      * @param idRiga id della riga da eliminare
-     * @throws NoSuchElementException se il progetto non esiste, o se la riga
+     * @throws RisorsaNonTrovataException se il progetto non esiste, o se la riga
      *         non esiste o non appartiene al progetto indicato
      */
     public void eliminaRigaBOM(Long idProgetto, Long idRiga) {
@@ -174,7 +174,7 @@ public class ProgettoService {
                 .stream()
                 .filter(r -> r.getId().equals(idRiga))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                     "Riga BOM con id " + idRiga + " non trovata nel progetto " + idProgetto
                 ));
 
@@ -188,7 +188,7 @@ public class ProgettoService {
     private ProgettoMaker cercaProgettoDaId(Long idProgetto) {
 
         return progettoRepo.findById(idProgetto)
-                .orElseThrow(() -> new NoSuchElementException(
+                .orElseThrow(() -> new RisorsaNonTrovataException(
                     "ProgettoMaker con id " + idProgetto + " non trovato"
                 ));
 
