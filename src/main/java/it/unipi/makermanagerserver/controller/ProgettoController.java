@@ -1,7 +1,6 @@
 package it.unipi.makermanagerserver.controller;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,15 +59,7 @@ public class ProgettoController {
         @PathVariable Long idProgetto
     ) {
 
-        try {
- 
-            return ResponseEntity.ok(progettoService.trovaPerId(idProgetto));
- 
-        } catch (NoSuchElementException e) {
- 
-            return ResponseEntity.notFound().build();
- 
-        }
+        return ResponseEntity.ok(progettoService.trovaPerId(idProgetto));
 
     }
 
@@ -113,16 +104,8 @@ public class ProgettoController {
     @DeleteMapping("/{idProgetto}")
     public ResponseEntity<Void> eliminaProgetto(@PathVariable Long idProgetto) {
 
-        try {
- 
-            progettoService.elimina(idProgetto);
-            return ResponseEntity.noContent().build();
- 
-        } catch (NoSuchElementException e) {
- 
-            return ResponseEntity.notFound().build();
- 
-        }
+        progettoService.elimina(idProgetto);
+        return ResponseEntity.noContent().build();
 
     }
 
@@ -138,16 +121,8 @@ public class ProgettoController {
         @Validated @RequestBody RigaBOMRequestDTO dtoRichiesta
     ) {
 
-        try {
-
-            RigaBOMResponseDTO dtoRisposta = progettoService.aggiungiRigaBOM(idProgetto, dtoRichiesta);
-            return ResponseEntity.status(HttpStatus.CREATED).body(dtoRisposta);
-
-        } catch (NoSuchElementException e) {
-
-            return ResponseEntity.notFound().build();
-
-        }
+        RigaBOMResponseDTO dtoRisposta = progettoService.aggiungiRigaBOM(idProgetto, dtoRichiesta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoRisposta);
 
     }
 
@@ -164,16 +139,8 @@ public class ProgettoController {
         @PathVariable Long idRiga
     ) {
 
-        try {
-
-            progettoService.eliminaRigaBOM(idProgetto, idRiga);
-            return ResponseEntity.noContent().build();
-
-        } catch (NoSuchElementException e) {
-
-            return ResponseEntity.notFound().build();
-
-        }
+        progettoService.eliminaRigaBOM(idProgetto, idRiga);
+        return ResponseEntity.noContent().build();
 
     }
 
