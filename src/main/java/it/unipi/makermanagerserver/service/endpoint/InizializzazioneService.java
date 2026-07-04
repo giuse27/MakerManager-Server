@@ -19,6 +19,7 @@ import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
+import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.factory.ArticoloInventarioFactory;
 import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
@@ -126,7 +127,7 @@ public class InizializzazioneService {
             ElementoCatalogo elemento = new ElementoCatalogo(
                 dto.getNome(), 
                 dto.getDescrizione(), 
-                risolviTipologia(dto.getTipologia())
+                risolviTipologiaElemento(dto.getTipologia())
             );
             catalogoRepo.save(elemento);
             res.put(dto.getNome(), elemento);
@@ -196,7 +197,7 @@ public class InizializzazioneService {
 
         for (ProgettoInitDTO dto : elencoSicuro(dati.getProgetti())) {
 
-            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(dto.getTipo());
+            ProgettoMaker progetto = ProgettoMakerFactory.creaProgetto(risolviTipologiaProgetto(dto.getTipo()));
 
             progetto.setNome(dto.getNome());
             progetto.setDescrizione(dto.getDescrizione());
@@ -267,13 +268,24 @@ public class InizializzazioneService {
 
     // ### Utility per risoluzione di riferimenti testuali ###
 
-    private TipologiaElemento risolviTipologia(String tipologia) {
+    private TipologiaElemento risolviTipologiaElemento(String tipologia) {
         try {
             return TipologiaElemento.valueOf(tipologia);
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new DatiNonValidiException(
                 "Tipologia '" + tipologia + "' non valida nel JSON di inizializzazione. Valori ammessi: "
                 + java.util.Arrays.toString(TipologiaElemento.values())
+            );
+        }
+    }
+
+    private TipologiaProgetto risolviTipologiaProgetto(String tipologia) {
+        try {
+            return TipologiaProgetto.valueOf(tipologia);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new DatiNonValidiException(
+                "Tipologia '" + tipologia + "' non valida nel JSON di inizializzazione. Valori ammessi: "
+                + java.util.Arrays.toString(TipologiaProgetto.values())
             );
         }
     }

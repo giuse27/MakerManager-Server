@@ -1,16 +1,12 @@
 package it.unipi.makermanagerserver.factory;
 
-import it.unipi.makermanagerserver.exception.DatiNonValidiException;
+import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoElettronica;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoRobotica;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoSoftware;
 import it.unipi.makermanagerserver.model.project.specific.ProgettoStampa3D;
 
-/**
- * TODO
- * NOTA PER IL FUTURO devi creare un enum TipologiaProgetto e poi aggiornare qui
- */
 public class ProgettoMakerFactory {
     
     // Costruttore privato: essendo una classe di utilità non voglio che qualcuno
@@ -22,21 +18,17 @@ public class ProgettoMakerFactory {
     }
 
     /**
-     * @throws DatiNonValidiException se "tipo" non corrisponde a nessuna
-     *         tipologia di progetto supportata
+     * Factory per istanziare la sottoclasse corretta di ProgettoMaker
+     * sulla base della tipologia richiesta.
      */
-    public static ProgettoMaker creaProgetto(String tipo) {
+    public static ProgettoMaker creaProgetto(TipologiaProgetto tipologia) {
         
-        return switch (tipo) {
+        return switch (tipologia) {
 
-            case "STAMPA_3D" -> new ProgettoStampa3D();
-            case "ELETTRONICA" -> new ProgettoElettronica();
-            case "ROBOTICA" -> new ProgettoRobotica();
-            case "SOFTWARE" -> new ProgettoSoftware();
-
-            default -> throw new DatiNonValidiException(
-                "Tipologia di progetto non ancora supportata: " + tipo 
-            );
+            case STAMPA_3D -> new ProgettoStampa3D();
+            case ELETTRONICA -> new ProgettoElettronica();
+            case ROBOTICA -> new ProgettoRobotica();
+            case SOFTWARE -> new ProgettoSoftware();
 
         };
 

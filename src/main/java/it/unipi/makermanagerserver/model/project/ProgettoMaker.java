@@ -2,6 +2,7 @@ package it.unipi.makermanagerserver.model.project;
 
 import java.time.LocalDate;
 
+import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.model.common.Progresso;
 
 import jakarta.persistence.Column;
@@ -9,6 +10,8 @@ import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,10 +32,15 @@ public abstract class ProgettoMaker {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nome")
     private String nome;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "descrizione", columnDefinition = "TEXT")
     private String descrizione;
+
+    @Column(name = "tipologia")
+    @Enumerated(EnumType.STRING)
+    private TipologiaProgetto tipologia;
 
     // Nuovo campo: JPA creerà una colonna "data_caricamento" di tipo DATE nel DB
     @Column(name = "data_caricamento")
@@ -51,9 +59,10 @@ public abstract class ProgettoMaker {
         dataCaricamento = LocalDate.now();
     }
 
-    public ProgettoMaker(String nome, String descrizione, BOM distintaBase, Progresso progresso, LocalDate dataCaricamento) {
+    public ProgettoMaker(String nome, String descrizione, TipologiaProgetto tipologia, BOM distintaBase, Progresso progresso, LocalDate dataCaricamento) {
         this.nome = nome;
         this.descrizione = descrizione;
+        this.tipologia = tipologia;
         this.distintaBase = distintaBase;
         this.progresso = progresso;
         // Se passiamo null, si imposta automaticamente ad oggi
@@ -82,6 +91,14 @@ public abstract class ProgettoMaker {
         this.descrizione = descrizione;
     }
 
+    public TipologiaProgetto getTipologia() {
+        return tipologia;
+    }
+
+    public void setTipologia(TipologiaProgetto tipologia) {
+        this.tipologia = tipologia;
+    }   
+
     public BOM getDistintaBase() {
         return distintaBase;
     }
@@ -104,6 +121,6 @@ public abstract class ProgettoMaker {
 
     public void setProgresso(Progresso progresso) {
         this.progresso = progresso;
-    }    
+    } 
 
 }
