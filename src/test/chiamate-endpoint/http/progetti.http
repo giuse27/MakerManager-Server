@@ -11,7 +11,7 @@
 GET {{baseUrl}}/api/progetti
 
 ### -----------------------------------------------------------------------
-### Visualizza un progetto a partire dal suo id
+### Visualizza un progetto a partire dal suo id (mostrando anche la BOM)
 ### -----------------------------------------------------------------------
 @idProgetto = 1
 GET {{baseUrl}}/api/progetti/{{idProgetto}}
@@ -89,3 +89,89 @@ DELETE {{baseUrl}}/api/progetti/{{idProgettoDaEliminare}}
 ### Elimina un progetto con id inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/progetti/999999
+
+
+
+
+### -----------------------------------------------------------------------
+### B.O.M. DEL PROGETTO — /api/progetti/{idProgetto}/bom
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. di un progetto
+### -----------------------------------------------------------------------
+# NB: idProgetto e idElementoCatalogo devono già esistere nel DB
+@idProgettoConBom = 1
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. con quantità non valida (per testare @Min -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 0
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. senza idElementoCatalogo (per testare @NotNull -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "quantita": 2
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga riferendo un progetto inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/999999/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga riferendo un elemento di catalogo inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 999999,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Verifica il contenuto della B.O.M. dopo le aggiunte
+### -----------------------------------------------------------------------
+# Usa la GET per id già presente sopra per controllare l'elenco "bom" nella risposta
+GET {{baseUrl}}/api/progetti/{{idProgettoConBom}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga dalla B.O.M. di un progetto
+### -----------------------------------------------------------------------
+# NB: sostituisci con un id di riga reale ottenuto dalla POST o dalla GET sopra
+@idRigaBomDaEliminare = 1
+DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/{{idRigaBomDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga da un progetto inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/999999/bom/{{idRigaBomDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga con id inesistente da un progetto esistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/999999
