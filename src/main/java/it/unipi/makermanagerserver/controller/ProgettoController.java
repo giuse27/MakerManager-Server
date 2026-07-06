@@ -78,6 +78,22 @@ public class ProgettoController {
     }
 
     /**
+     * GET /api/progetti/utente/{idUtente}
+     *
+     * restituisce i progetti appartenenti a un utente. Lettura pubblica:
+     * i progetti compongono un catalogo condiviso, non un dato personale
+     * (a differenza degli inventari).
+     */
+    @GetMapping("/utente/{idUtente}")
+    public ResponseEntity<List<ProgettoResponseDTO>> trovaProgettiUtente(
+        @PathVariable Long idUtente
+    ) {
+
+        return ResponseEntity.ok(progettoService.trovaPerUtente(idUtente));
+
+    }
+
+    /**
      * POST /api/progetti
      * 
      * crea un nuovo progetto dalle caratteristiche specificate nel body
