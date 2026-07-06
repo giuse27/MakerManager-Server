@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,8 @@ import it.unipi.makermanagerserver.dto.inizializza.ElementoCatalogoInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.InventarioInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.ProgettoInitDTO;
 import it.unipi.makermanagerserver.dto.inizializza.RigaBOMInitDTO;
+import it.unipi.makermanagerserver.dto.inizializza.UtenteInitDTO;
+import it.unipi.makermanagerserver.enums.RuoloUtente;
 import it.unipi.makermanagerserver.enums.TipologiaElemento;
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
@@ -29,10 +32,12 @@ import it.unipi.makermanagerserver.model.inventory.Inventario;
 import it.unipi.makermanagerserver.model.project.BOM;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.RigaBOM;
+import it.unipi.makermanagerserver.model.user.Utente;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 import it.unipi.makermanagerserver.repository.InventarioRepository;
 import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
+import it.unipi.makermanagerserver.repository.UtenteRepository;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -54,7 +59,9 @@ public class InizializzazioneService {
     private final InventarioRepository inventarioRepo;
     private final ArticoloInventarioRepository articoloRepo;
     private final ProgettoMakerRepository progettoRepo;
+    private final UtenteRepository utenteRepo;
     private final ObjectMapper objectMapper;
+    private final String adminDefaultNickname;
  
     // Iniezione delle dipendenze via costruttore: e' la modalita' raccomandata
     // in Spring (rispetto a @Autowired sui campi) perche' rende esplicite le
@@ -65,14 +72,18 @@ public class InizializzazioneService {
             InventarioRepository inventarioRepo,
             ArticoloInventarioRepository articoloRepo,
             ProgettoMakerRepository progettoRepo,
-            ObjectMapper objectMapper
+            UtenteRepository utenteRepo,
+            ObjectMapper objectMapper,
+            @Value("${admin.default.nickname}") String adminDefaultNickname
         ) 
     {
         this.catalogoRepo = catalogoRepo;
         this.inventarioRepo = inventarioRepo;
         this.articoloRepo = articoloRepo;
         this.progettoRepo = progettoRepo;
+        this.utenteRepo = utenteRepo;
         this.objectMapper = objectMapper;
+        this.adminDefaultNickname = adminDefaultNickname;
     }
 
     /**
@@ -93,20 +104,22 @@ public class InizializzazioneService {
         cancellaDatiEsistenti();
 
         // Inizializzazione vera e propria
+        Map<String, Utente> utentiPerNickname = caricaUtenti(dati);
         Map<String, ElementoCatalogo> catalogoPerNome = caricaCatalogo(dati);
-        Map<String, Inventario> inventariPerNome = caricaInventario(dati);
+        Map<String, Inventario> inventariPerNome = caricaInventario(dati, utentiPerNickname);
         caricaArticoliInventario(dati, catalogoPerNome, inventariPerNome);
-        caricaProgetti(dati, catalogoPerNome);        
+        caricaProgetti(dati, catalogoPerNome, utentiPerNickname);        
 
         logger.info("Inizializzazione completata con successo");
     }
 
     // Cancellazione dei dati esistenti
-    /*
+    /**
      * Ordine di cancellazione obbligato dai vincoli delle foreign key:
      * 1) ProgettoMaker: il cascade su BOM.righeFabbisogno cancella anche le RigaBOM
      * 2) Inventario: il cascade su Inventario.articoli cancella anche gli ArticoloInventario
      * 3) ElementoCatalogo: solo ora e' sicuro, nessuno lo referenzia piu'
+     * 4) Utente: solo dopo 1 e 2 e vengono eliminati tutti gli utenti tranne admin default
      */
     private void cancellaDatiEsistenti() {
 
@@ -114,6 +127,7 @@ public class InizializzazioneService {
         progettoRepo.deleteAll();
         inventarioRepo.deleteAll();
         catalogoRepo.deleteAll();
+        utenteRepo.deleteAllByNicknameNot(adminDefaultNickname);
 
     }
 
@@ -140,15 +154,20 @@ public class InizializzazioneService {
     }
 
     // Caricamento di Inventario
-    private Map<String, Inventario> caricaInventario(CatalogoInitDTO dati) {
+    private Map<String, Inventario> caricaInventario(
+        CatalogoInitDTO dati, 
+        Map<String, Utente> utentiPerNickname
+    ) {
 
         Map<String, Inventario> res = new HashMap<>();
 
         for (InventarioInitDTO dto : elencoSicuro(dati.getInventari())) {
 
+            Utente utente = risolviUtente(utentiPerNickname, dto.getUtente());
+
             Inventario inventario = new Inventario(
                 dto.getNome(), 
-                dto.getIdUtente()
+                utente
             );
             inventarioRepo.save(inventario);
             res.put(dto.getNome(), inventario);
@@ -191,7 +210,11 @@ public class InizializzazioneService {
     }
 
     // Caricamento di ProgettoMaker + BOM (dipende da ElementoCatalogo)
-    private void caricaProgetti(CatalogoInitDTO dati, Map<String, ElementoCatalogo> catalogoPerNome) {
+    private void caricaProgetti(
+        CatalogoInitDTO dati, 
+        Map<String, ElementoCatalogo> catalogoPerNome,
+        Map<String, Utente> utentiPerNickname
+    ) {
 
         int count = 0;
 
@@ -203,6 +226,7 @@ public class InizializzazioneService {
 
             progetto.setNome(dto.getNome());
             progetto.setDescrizione(dto.getDescrizione());
+            progetto.setAutore(risolviUtente(utentiPerNickname, dto.getAutore()));
             progetto.setTipologia(tipologia);
             progetto.setDistintaBase(creaBOM(dto.getBom(), catalogoPerNome));
 
@@ -231,6 +255,33 @@ public class InizializzazioneService {
 
     }
 
+    // TODO modificare la password con il salvataggio criptato
+    // Caricamento degli utenti
+    private Map<String, Utente> caricaUtenti(CatalogoInitDTO dati) {
+
+        Map<String, Utente> res = new HashMap<>();
+
+        for (UtenteInitDTO dto : elencoSicuro(dati.getUtenti())) {
+
+            // TODO
+            String passwordCriptata = dto.getPassword();
+
+            Utente utente = new Utente(
+                dto.getNickname(), 
+                dto.getEmail(), 
+                passwordCriptata, 
+                RuoloUtente.UTENTE
+            );
+            utenteRepo.save(utente);
+            res.put(dto.getNickname(), utente);
+
+        }
+
+        logger.info("Caricati {} utenti", res.size());
+        return res;
+
+    }
+
     // #########################################################################
     // ------------------------- UTILITY PRIVATE -------------------------------
     // #########################################################################
@@ -244,12 +295,14 @@ public class InizializzazioneService {
 
         } catch (IOException e) {
             
-            // Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
-            // non c'e' nulla da inizializzare. Lo trasformiamo in una
-            // RuntimeException non controllata, che il GlobalExceptionHandler
-            // intercettera' con l'handler di fallback restituendo un 500:
-            // e' corretto che sia un 500 (non un errore dell'utente/client,
-            // ma una configurazione mancante lato server).
+            /**
+             * Un errore qui e' irrecuperabile per l'endpoint: senza il JSON
+             * non c'e' nulla da inizializzare. Lo trasformiamo in una
+             * RuntimeException non controllata, che il GlobalExceptionHandler
+             * intercettera' con l'handler di fallback restituendo un 500:
+             * e' corretto che sia un 500 (non un errore dell'utente/client,
+             * ma una configurazione mancante lato server).
+            */
             throw new IllegalStateException("Impossibile leggere il file di inizializzazione: " + PERCORSO_JSON, e);
 
         }
@@ -309,6 +362,18 @@ public class InizializzazioneService {
                     "Riferimento non valido nel JSON di inizializzazione: Inventario '" + nome + "' non trovato.");
         }
         return inventario;
+    }
+
+    /**
+     * verifica che un utente esista a partire dal suo nickname
+     */
+    private Utente risolviUtente(Map<String, Utente> utentiPerNickname, String nickname) {
+        Utente utente = utentiPerNickname.get(nickname);
+        if (utente == null) {
+            throw new DatiNonValidiException(
+                    "Riferimento non valido nel JSON di inizializzazione: Utente '" + nickname + "' non trovato.");
+        }
+        return utente;
     }
 
 }
