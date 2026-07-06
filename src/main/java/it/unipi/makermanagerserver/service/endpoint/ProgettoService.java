@@ -16,27 +16,38 @@ import it.unipi.makermanagerserver.mapper.ProgettoMapper;
 import it.unipi.makermanagerserver.model.project.BOM;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.RigaBOM;
+import it.unipi.makermanagerserver.model.user.Utente;
 import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
- 
+import it.unipi.makermanagerserver.security.UtenteCorrente;
+
 /**
  * Fornisce i metodi per l'endpoint /api/progetti.
  * Il controller usa questa classe come intermediaria con repository e mapper.
+ *
+ * I progetti compongono un catalogo condiviso: la lettura (trovaTutti,
+ * trovaPerId, trovaPerTipologia, trovaPerUtente) resta pubblica per
+ * chiunque. Solo le operazioni che modificano un progetto (creazione,
+ * eliminazione, modifica della BOM) sono legate alla proprieta': un
+ * progetto appartiene sempre a chi lo ha creato, e solo lui (o un ADMIN)
+ * puo' modificarlo o eliminarlo (vedi UtenteCorrente).
  */
-
 @Service
 public class ProgettoService {
 
     private final ProgettoMakerRepository progettoRepo;
     private final ProgettoMapper progettoMapper;
+    private final UtenteCorrente utenteCorrente;
 
     public ProgettoService(
         ProgettoMakerRepository progettoRepo,
-        ProgettoMapper progettoMapper
+        ProgettoMapper progettoMapper,
+        UtenteCorrente utenteCorrente
     ) {
- 
+
         this.progettoRepo = progettoRepo;
         this.progettoMapper = progettoMapper;
- 
+        this.utenteCorrente = utenteCorrente;
+
     }
 
     /**
@@ -92,13 +103,33 @@ public class ProgettoService {
     }
 
     /**
-     * 
+     * Restituisce i progetti appartenenti a un utente. A differenza degli
+     * inventari, e' una lettura pubblica
+     *
+     * @param idUtente id dell'utente di cui cercare i progetti
+     */
+    public List<ProgettoResponseDTO> trovaPerUtente(Long idUtente) {
+
+        return progettoRepo.findByAutoreId(idUtente)
+                .stream()
+                .map(progettoMapper::toResponseDTO)
+                .toList();
+
+    }
+
+    /**
+     * Crea un nuovo progetto. Il proprietario e' sempre l'utente
+     * autenticato che ha effettuato la richiesta (vedi UtenteCorrente)
+     *
      * @param dtoRichiesta body del post con le caratteristiche del progetto
      * @return Restituisce il dto di risposta del progetto creato
      */
     public ProgettoResponseDTO crea(ProgettoRequestDTO dtoRichiesta) {
 
-        ProgettoMaker progetto = progettoMapper.toProgetto(dtoRichiesta);
+        Utente autore = utenteCorrente.get();
+
+        ProgettoMaker progetto = progettoMapper.toProgetto(dtoRichiesta, autore);
+
         ProgettoMaker progettoDB = progettoRepo.save(progetto);
 
         return progettoMapper.toResponseDTO(progettoDB);
@@ -106,20 +137,21 @@ public class ProgettoService {
     }
 
     /**
-     * Elimina il progetto desiderato
-     * 
+     * Elimina il progetto desiderato. Solo il proprietario o un ADMIN
+     * possono eliminarlo.
+     *
      * @param idProgetto id del progetto da eliminare
      * @throws RisorsaNonTrovataException se l'id non corrisponde a nessun progetto esistente
+     * @throws it.unipi.makermanagerserver.exception.AccessoNegatoException
+     *         se il progetto non appartiene all'utente corrente e non e' ADMIN
      */
     public void elimina(Long idProgetto) {
 
-        if (!progettoRepo.existsById(idProgetto)) {
-
-            throw new RisorsaNonTrovataException(
-                "ProgettoMaker con id " + idProgetto + " non trovato"
-            );
-
-        }
+        ProgettoMaker progetto = cercaProgettoDaId(idProgetto);
+        utenteCorrente.verificaProprietarioOAdmin(
+            progetto.getAutore(),
+            "Non puoi eliminare un progetto che non ti appartiene"
+        );
 
         progettoRepo.deleteById(idProgetto);
 
@@ -138,10 +170,16 @@ public class ProgettoService {
      * @param dtoRichiesta dati della riga da aggiungere (id elemento catalogo, quantita)
      * @return il DTO della riga appena creata (comprensivo dell'id generato dal DB)
      * @throws RisorsaNonTrovataException se il progetto non esiste
+     * @throws it.unipi.makermanagerserver.exception.AccessoNegatoException
+     *         se il progetto non appartiene all'utente corrente e non e' ADMIN
      */
     public RigaBOMResponseDTO aggiungiRigaBOM(Long idProgetto, RigaBOMRequestDTO dtoRichiesta) {
 
         ProgettoMaker progetto = cercaProgettoDaId(idProgetto);
+        utenteCorrente.verificaProprietarioOAdmin(
+            progetto.getAutore(),
+            "Non puoi modificare la BOM di un progetto che non ti appartiene"
+        );
 
         RigaBOM riga = progettoMapper.toRigaBOM(dtoRichiesta);
         progetto.getDistintaBase().aggiungiRiga(riga);
@@ -164,10 +202,17 @@ public class ProgettoService {
      * @param idRiga id della riga da eliminare
      * @throws RisorsaNonTrovataException se il progetto non esiste, o se la riga
      *         non esiste o non appartiene al progetto indicato
+     * @throws it.unipi.makermanagerserver.exception.AccessoNegatoException
+     *         se il progetto non appartiene all'utente corrente e non e' ADMIN
      */
     public void eliminaRigaBOM(Long idProgetto, Long idRiga) {
 
         ProgettoMaker progetto = cercaProgettoDaId(idProgetto);
+        utenteCorrente.verificaProprietarioOAdmin(
+            progetto.getAutore(),
+            "Non puoi modificare la BOM di un progetto che non ti appartiene"
+        );
+
         BOM bom = progetto.getDistintaBase();
 
         RigaBOM riga = bom.getRigheFabbisogno()
