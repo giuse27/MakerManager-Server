@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * DTO radice che rispecchia l'intera struttura del file
- * catalogo-iniziale.json (le 4 sezioni: catalogo, inventari,
+ * inzializzazione.json (le 4 sezioni: catalogo, inventari,
  * articoliInventario, progetti).
  *
  * Jackson (gia' incluso in spring-boot-starter-webmvc) mappa

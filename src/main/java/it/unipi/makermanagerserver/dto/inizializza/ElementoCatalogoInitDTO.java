@@ -2,7 +2,7 @@ package it.unipi.makermanagerserver.dto.inizializza;
 
 /**
  * DTO "di caricamento": rispecchia la forma di una voce dell'array
- * "catalogo" nel file catalogo-iniziale.json.
+ * "catalogo" nel file inzializzazione.json.
  *
  * A differenza di un DTO di risposta API, questo non viene mai esposto
  * al client: serve solo come struttura intermedia per deserializzare il

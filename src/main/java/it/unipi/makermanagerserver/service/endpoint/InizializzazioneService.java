@@ -40,7 +40,7 @@ import tools.jackson.databind.ObjectMapper;
  * (SRP: questa classe si occupa solo di popolare/ripopolare il database,
  * nessun'altra responsabilita').
  *
- * Legge il file catalogo-iniziale.json da resources/data, e se il database
+ * Legge il file inzializzazione.json da resources/data, e se il database
  * contiene gia' dati li cancella integralmente prima di ricaricare, come
  * richiesto dal documento di contesto del progetto (punto 4).
  */
@@ -48,7 +48,7 @@ import tools.jackson.databind.ObjectMapper;
 public class InizializzazioneService {
     
     private static final Logger logger = LogManager.getLogger(InizializzazioneService.class);
-    private static final String PERCORSO_JSON = "data/catalogo-iniziale.json";
+    private static final String PERCORSO_JSON = "data/inzializzazione.json";
 
     private final ElementoCatalogoRepository catalogoRepo;
     private final InventarioRepository inventarioRepo;
