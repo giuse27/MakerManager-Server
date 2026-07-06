@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,8 +62,9 @@ public class InizializzazioneService {
     private final ProgettoMakerRepository progettoRepo;
     private final UtenteRepository utenteRepo;
     private final ObjectMapper objectMapper;
+    private final PasswordEncoder passwordEncoder;
     private final String adminDefaultNickname;
- 
+
     // Iniezione delle dipendenze via costruttore: e' la modalita' raccomandata
     // in Spring (rispetto a @Autowired sui campi) perche' rende esplicite le
     // dipendenze della classe e permette di scrivere test unitari passando
@@ -74,8 +76,9 @@ public class InizializzazioneService {
             ProgettoMakerRepository progettoRepo,
             UtenteRepository utenteRepo,
             ObjectMapper objectMapper,
+            PasswordEncoder passwordEncoder,
             @Value("${admin.default.nickname}") String adminDefaultNickname
-        ) 
+        )
     {
         this.catalogoRepo = catalogoRepo;
         this.inventarioRepo = inventarioRepo;
@@ -83,6 +86,7 @@ public class InizializzazioneService {
         this.progettoRepo = progettoRepo;
         this.utenteRepo = utenteRepo;
         this.objectMapper = objectMapper;
+        this.passwordEncoder = passwordEncoder;
         this.adminDefaultNickname = adminDefaultNickname;
     }
 
@@ -255,7 +259,6 @@ public class InizializzazioneService {
 
     }
 
-    // TODO modificare la password con il salvataggio criptato
     // Caricamento degli utenti
     private Map<String, Utente> caricaUtenti(CatalogoInitDTO dati) {
 
@@ -263,8 +266,11 @@ public class InizializzazioneService {
 
         for (UtenteInitDTO dto : elencoSicuro(dati.getUtenti())) {
 
-            // TODO
-            String passwordCriptata = dto.getPassword();
+            // La password nel JSON e' in chiaro (comoda da scrivere/leggere
+            // per i dati di test): va sempre criptata con BCrypt prima di
+            // salvarla, esattamente come fara' AuthService in fase di
+            // registrazione. Non va mai persistita in chiaro sul DB.
+            String passwordCriptata = passwordEncoder.encode(dto.getPassword());
 
             Utente utente = new Utente(
                 dto.getNickname(), 
