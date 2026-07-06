@@ -3,11 +3,14 @@ package it.unipi.makermanagerserver.model.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.unipi.makermanagerserver.model.user.Utente;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -28,8 +31,16 @@ public class Inventario {
 
     private String nome;
 
-    // segnaposto di tipo Long in attesa dell'implementazione dell'utente nella v1.0.0
+    // TODO segnaposto di tipo Long in attesa dell'implementazione dell'utente nella v1.0.0
+    // rimuoverò idUtente quando funzionerà tutto
     private Long idUtente;
+
+    /**
+     * Appartenenza dell'inventario (uno o più) all'utente
+     */
+    @ManyToOne
+    @JoinColumn(name = "utente_id")
+    private Utente utente;
 
     /*
      * Lato "inverso" della relazione bidirezionale con ArticoloInventario.
@@ -73,13 +84,21 @@ public class Inventario {
     public void setNome(String nome) {
         this.nome = nome;
     }
- 
+    
     public Long getIdUtente() {
         return idUtente;
     }
  
     public void setIdUtente(Long idUtente) {
         this.idUtente = idUtente;
+    }
+
+    public Utente getUtente() {
+        return utente;
+    }
+
+    public void setUtente(Utente utente) {
+        this.utente = utente;
     }
  
     public List<ArticoloInventario> getArticoli() {
