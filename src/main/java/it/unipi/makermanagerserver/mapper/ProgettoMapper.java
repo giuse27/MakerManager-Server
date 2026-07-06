@@ -16,6 +16,7 @@ import it.unipi.makermanagerserver.factory.ProgettoMakerFactory;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.project.ProgettoMaker;
 import it.unipi.makermanagerserver.model.project.RigaBOM;
+import it.unipi.makermanagerserver.model.user.Utente;
 import it.unipi.makermanagerserver.repository.ElementoCatalogoRepository;
 
 @Component
@@ -27,7 +28,7 @@ public class ProgettoMapper {
         this.elementoCatalogoRepository = elementoCatalogoRepository;
     }
 
-    public ProgettoMaker toProgetto(ProgettoRequestDTO dto) {
+    public ProgettoMaker toProgetto(ProgettoRequestDTO dto, Utente autore) {
 
         TipologiaProgetto tipologia = risolviTipologia(dto.getTipo());
 
@@ -38,6 +39,7 @@ public class ProgettoMapper {
         progetto.setNome(dto.getNome());
         progetto.setDescrizione(dto.getDescrizione());
         progetto.setTipologia(tipologia);
+        progetto.setAutore(autore);
 
         return progetto;
 
@@ -49,7 +51,9 @@ public class ProgettoMapper {
             progetto.getId(),
             progetto.getTipologia().name(),
             progetto.getNome(),
-            progetto.getDescrizione()
+            progetto.getDescrizione(),
+            progetto.getAutore().getId(),
+            progetto.getAutore().getNickname()
         );
     
     }
@@ -71,6 +75,8 @@ public class ProgettoMapper {
             progetto.getTipologia().name(),
             progetto.getNome(),
             progetto.getDescrizione(),
+            progetto.getAutore().getId(),
+            progetto.getAutore().getNickname(),
             righeBom
         );
 

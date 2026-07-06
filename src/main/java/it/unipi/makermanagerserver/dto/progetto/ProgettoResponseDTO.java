@@ -9,15 +9,22 @@ public class ProgettoResponseDTO {
     private String tipo;
     private String nome;
     private String descrizione;
+    private Long idAutore;
+    private String nicknameAutore;
 
     public ProgettoResponseDTO() {
     }
 
-    public ProgettoResponseDTO(Long id, String tipo, String nome, String descrizione) {
+    public ProgettoResponseDTO(
+        Long id, String tipo, String nome, String descrizione,
+        Long idAutore, String nicknameAutore
+    ) {
         this.id = id;
         this.tipo = tipo;
         this.nome = nome;
         this.descrizione = descrizione;
+        this.idAutore = idAutore;
+        this.nicknameAutore = nicknameAutore;
     }
 
     public Long getId() {
@@ -50,6 +57,22 @@ public class ProgettoResponseDTO {
 
     public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
+    }
+
+    public Long getIdAutore() {
+        return idAutore;
+    }
+
+    public void setIdAutore(Long idAutore) {
+        this.idAutore = idAutore;
+    }
+
+    public String getNicknameAutore() {
+        return nicknameAutore;
+    }
+
+    public void setNicknameAutore(String nicknameAutore) {
+        this.nicknameAutore = nicknameAutore;
     }
 
 }

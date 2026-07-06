@@ -5,15 +5,17 @@ public class InventarioResponseDTO {
     private Long id;
     private String nome;
     private Long idUtente;
+    private String nicknameUtente;
 
     public InventarioResponseDTO() {
 
     }
     
-    public InventarioResponseDTO(Long id, String nome, Long idUtente) {
+    public InventarioResponseDTO(Long id, String nome, Long idUtente, String nicknameUtente) {
         this.id = id;
         this.nome = nome;
         this.idUtente = idUtente;
+        this.nicknameUtente = nicknameUtente;
     }
 
     public Long getId() {
@@ -38,6 +40,14 @@ public class InventarioResponseDTO {
 
     public void setIdUtente(Long idUtente) {
         this.idUtente = idUtente;
+    }
+
+    public String getNicknameUtente() {
+        return nicknameUtente;
+    }
+
+    public void setNicknameUtente(String nicknameUtente) {
+        this.nicknameUtente = nicknameUtente;
     }
 
 }

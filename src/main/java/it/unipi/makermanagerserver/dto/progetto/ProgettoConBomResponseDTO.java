@@ -13,16 +13,23 @@ public class ProgettoConBomResponseDTO {
     private String tipo;
     private String nome;
     private String descrizione;
+    private Long idAutore;
+    private String nicknameAutore;
     private List<RigaBOMResponseDTO> bom;
 
     public ProgettoConBomResponseDTO() {
     }
 
-    public ProgettoConBomResponseDTO(Long id, String tipo, String nome, String descrizione, List<RigaBOMResponseDTO> bom) {
+    public ProgettoConBomResponseDTO(
+        Long id, String tipo, String nome, String descrizione, 
+        Long idAutore, String nicknameAutore, List<RigaBOMResponseDTO> bom
+    ) {
         this.id = id;
         this.tipo = tipo;
         this.nome = nome;
         this.descrizione = descrizione;
+        this.idAutore = idAutore;
+        this.nicknameAutore = nicknameAutore;
         this.bom = bom;
     }
 
@@ -56,6 +63,22 @@ public class ProgettoConBomResponseDTO {
 
     public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
+    }
+
+    public Long getIdAutore() {
+        return idAutore;
+    }
+
+    public void setIdAutore(Long idAutore) {
+        this.idAutore = idAutore;
+    }
+
+    public String getNicknameAutore() {
+        return nicknameAutore;
+    }
+
+    public void setNicknameAutore(String nicknameAutore) {
+        this.nicknameAutore = nicknameAutore;
     }
 
     public List<RigaBOMResponseDTO> getBom() {
