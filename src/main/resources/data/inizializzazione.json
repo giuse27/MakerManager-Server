@@ -1,0 +1,133 @@
+{
+
+  "catalogo": [
+    {
+      "nome": "Raspberry Pi 4 Model B",
+      "descrizione": "Single Board Computer 4GB RAM",
+      "tipologia": "COMPONENTE_ELETTRONICO"
+    },
+    {
+      "nome": "Arduino Uno R3",
+      "descrizione": "Microcontrollore ATmega328P",
+      "tipologia": "COMPONENTE_ELETTRONICO"
+    },
+    {
+      "nome": "Sensore ultrasuoni HC-SR04",
+      "descrizione": "Modulo per la misurazione di distanze",
+      "tipologia": "COMPONENTE_ELETTRONICO"
+    },
+    {
+      "nome": "Filamento PLA 1.75mm",
+      "descrizione": "Bobina da 1kg per stampa 3D FDM",
+      "tipologia": "MATERIALE_CONSUMABILE"
+    },
+    {
+      "nome": "Resina fotopolimerica standard",
+      "descrizione": "Resina per stampanti 3D a resina, 500ml",
+      "tipologia": "MATERIALE_CONSUMABILE"
+    }
+  ],
+
+  "inventari": [
+    {
+      "nome": "Inventario di Pippo",
+      "utente": "pippo"
+    },
+    {
+      "nome": "Inventario casa di Peppe",
+      "utente": "giuse27"
+    },
+    {
+      "nome": "Inventario laboratorio di Peppe",
+      "utente": "giuse27"
+    }
+  ],
+
+  "articoliInventario": [
+    {
+      "tipo": "COMPONENTE_ELETTRONICO",
+      "elementoCatalogo": "Raspberry Pi 4 Model B",
+      "inventario": "Inventario di Pippo",
+      "quantita": 2
+    },
+    {
+      "tipo": "COMPONENTE_ELETTRONICO",
+      "elementoCatalogo": "Arduino Uno R3",
+      "inventario": "Inventario di Pippo",
+      "quantita": 5
+    },
+    {
+      "tipo": "MATERIALE_CONSUMABILE",
+      "elementoCatalogo": "Filamento PLA 1.75mm",
+      "inventario": "Inventario di Pippo",
+      "quantita": 3
+    },
+    {
+      "tipo": "MATERIALE_CONSUMABILE",
+      "elementoCatalogo": "Resina fotopolimerica standard",
+      "inventario": "Inventario di Pippo",
+      "quantita": 1
+    }
+    ,
+    {
+      "tipo": "COMPONENTE_ELETTRONICO",
+      "elementoCatalogo": "Arduino Uno R3",
+      "inventario": "Inventario casa di Peppe",
+      "quantita": 2
+    },
+    {
+      "tipo": "COMPONENTE_ELETTRONICO",
+      "elementoCatalogo": "Sensore ultrasuoni HC-SR04",
+      "inventario": "Inventario casa di Peppe",
+      "quantita": 4
+    },
+    {
+      "tipo": "MATERIALE_CONSUMABILE",
+      "elementoCatalogo": "Filamento PLA 1.75mm",
+      "inventario": "Inventario laboratorio di Peppe",
+      "quantita": 30
+    },
+    {
+      "tipo": "MATERIALE_CONSUMABILE",
+      "elementoCatalogo": "Resina fotopolimerica standard",
+      "inventario": "Inventario laboratorio di Peppe",
+      "quantita": 10
+    }
+  ],
+
+  "progetti": [
+    {
+      "tipo": "STAMPA_3D",
+      "nome": "Supporto da tavolo per smartphone",
+      "descrizione": "Supporto stampabile in PLA per smartphone e tablet",
+      "autore": "pippo",
+      "bom": [
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Stazione meteo con Arduino",
+      "descrizione": "Stazione di rilevamento distanza/prossimità basata su Arduino",
+      "autore": "giuse27",
+      "bom": [
+        { "elementoCatalogo": "Arduino Uno R3", "quantita": 1 },
+        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 1 }
+      ]
+    }
+  ],
+
+  "utenti": [
+    {
+      "nickname": "pippo",
+      "email": "pippoutente@test.com",
+      "password": "password-123!"
+    },
+    {
+      "nickname": "giuse27",
+      "email": "pippoutente@test.com",
+      "password": "Segretissimo1234"
+    }
+  ]
+  
+}
