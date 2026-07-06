@@ -15,8 +15,6 @@ import jakarta.persistence.Table;
  * 
  * Utente ha un Ruolo che può essere UTENTE o ADMIN e in base al ruolo ottiene i
  * permessi per poter effettuare determinate azioni
- * 
- * TODO i permessi devono essere configurabili
  */
 @Entity
 @Table(name = "utente")
