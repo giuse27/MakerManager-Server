@@ -184,9 +184,21 @@ public class ProgettoService {
         RigaBOM riga = progettoMapper.toRigaBOM(dtoRichiesta);
         progetto.getDistintaBase().aggiungiRiga(riga);
 
-        progettoRepo.save(progetto);
+        /*
+         * progettoRepo.save(...) su un ProgettoMaker gia' esistente esegue
+         * un merge(): l'entita' restituita e' una copia gestita distinta da
+         * "progetto"/"riga" (creati sopra da entita' detached), ed e' SOLO
+         * su questa copia che Hibernate popola l'id generato dal DB per la
+         * nuova riga. Per questo non possiamo restituire il DTO a partire
+         * da "riga", ma dobbiamo recuperare la riga appena aggiunta dalla
+         * BOM dell'entita' restituita da save() (e' sempre l'ultima, visto
+         * che e' stata appena aggiunta in coda alla lista).
+         */
+        ProgettoMaker progettoSalvato = progettoRepo.save(progetto);
+        List<RigaBOM> righeSalvate = progettoSalvato.getDistintaBase().getRigheFabbisogno();
+        RigaBOM rigaSalvata = righeSalvate.get(righeSalvate.size() - 1);
 
-        return progettoMapper.toRigaBOMResponseDTO(riga);
+        return progettoMapper.toRigaBOMResponseDTO(rigaSalvata);
 
     }
 
