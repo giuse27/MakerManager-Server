@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import it.unipi.makermanagerserver.enums.TipologiaProgetto;
 import it.unipi.makermanagerserver.model.common.Progresso;
-
+import it.unipi.makermanagerserver.model.user.Utente;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -17,6 +17,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -37,6 +39,13 @@ public abstract class ProgettoMaker {
 
     @Column(name = "descrizione", columnDefinition = "TEXT")
     private String descrizione;
+
+    /**
+     * Appartenenza dell'inventario (uno o più) all'utente
+     */
+    @ManyToOne
+    @JoinColumn(name = "utente_id")
+    private Utente autore;
 
     @Column(name = "tipologia")
     @Enumerated(EnumType.STRING)
@@ -91,6 +100,14 @@ public abstract class ProgettoMaker {
 
     public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
+    }
+
+    public Utente getAutore() {
+        return autore;
+    }
+    
+    public void setAutore(Utente autore) {
+        this.autore = autore;
     }
 
     public TipologiaProgetto getTipologia() {
