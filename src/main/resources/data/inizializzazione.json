@@ -120,12 +120,12 @@
   "utenti": [
     {
       "nickname": "pippo",
-      "email": "pippoutente@test.com",
+      "email": "utentepippo@test.com",
       "password": "password-123!"
     },
     {
       "nickname": "giuse27",
-      "email": "pippoutente@test.com",
+      "email": "utentegiuse@test.com",
       "password": "Segretissimo1234"
     }
   ]
