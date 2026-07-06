@@ -1,0 +1,177 @@
+### Variabili
+@baseUrl = http://localhost:8080
+
+### -----------------------------------------------------------------------
+### PROGETTI — /api/progetti
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Visualizza tutti i progetti
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti
+
+### -----------------------------------------------------------------------
+### Visualizza un progetto a partire dal suo id (mostrando anche la BOM)
+### -----------------------------------------------------------------------
+@idProgetto = 1
+GET {{baseUrl}}/api/progetti/{{idProgetto}}
+
+### -----------------------------------------------------------------------
+### Visualizza un progetto con id inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti/999999
+
+### -----------------------------------------------------------------------
+### Visualizza i progetti di una tipologia
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti/tipologia/STAMPA_3D
+
+###
+GET {{baseUrl}}/api/progetti/tipologia/ELETTRONICA
+
+###
+GET {{baseUrl}}/api/progetti/tipologia/ROBOTICA
+
+###
+GET {{baseUrl}}/api/progetti/tipologia/SOFTWARE
+
+### -----------------------------------------------------------------------
+### Visualizza progetti con tipologia NON valida (per testare il 400)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti/tipologia/TIPOLOGIA_INESISTENTE
+
+### -----------------------------------------------------------------------
+### Crea un nuovo progetto (BOM vuota di default)
+### -----------------------------------------------------------------------
+# NB: ProgettoResponseDTO non espone ancora la BOM, quindi per verificare
+# che sia stata creata vuota devi controllare direttamente il DB
+# (tabella righe_bom: non deve comparire nessuna riga con il progetto_id
+# appena creato). È solo una conferma di comportamento, non un caso di errore.
+POST {{baseUrl}}/api/progetti
+Content-Type: application/json
+
+{
+  "tipo": "STAMPA_3D",
+  "nome": "Progetto per test",
+  "descrizione": "test endpoint POST /api/progetti"
+}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo progetto con tipo non valido (per testare il 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti
+Content-Type: application/json
+
+{
+  "tipo": "TIPO_INESISTENTE",
+  "nome": "Progetto con tipo sbagliato",
+  "descrizione": "Deve fallire con 400 Bad Request"
+}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo progetto senza nome (per testare la validazione @NotBlank -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti
+Content-Type: application/json
+
+{
+  "tipo": "ELETTRONICA",
+  "descrizione": "Manca il nome"
+}
+
+### -----------------------------------------------------------------------
+### Elimina un progetto a partire dal suo id
+### -----------------------------------------------------------------------
+@idProgettoDaEliminare = 2
+DELETE {{baseUrl}}/api/progetti/{{idProgettoDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina un progetto con id inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/999999
+
+
+
+
+### -----------------------------------------------------------------------
+### B.O.M. DEL PROGETTO — /api/progetti/{idProgetto}/bom
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. di un progetto
+### -----------------------------------------------------------------------
+# NB: idProgetto e idElementoCatalogo devono già esistere nel DB
+@idProgettoConBom = 1
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. con quantità non valida (per testare @Min -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 0
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. senza idElementoCatalogo (per testare @NotNull -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "quantita": 2
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga riferendo un progetto inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/999999/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga riferendo un elemento di catalogo inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 999999,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Verifica il contenuto della B.O.M. dopo le aggiunte
+### -----------------------------------------------------------------------
+# Usa la GET per id già presente sopra per controllare l'elenco "bom" nella risposta
+GET {{baseUrl}}/api/progetti/{{idProgettoConBom}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga dalla B.O.M. di un progetto
+### -----------------------------------------------------------------------
+# NB: sostituisci con un id di riga reale ottenuto dalla POST o dalla GET sopra
+@idRigaBomDaEliminare = 1
+DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/{{idRigaBomDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga da un progetto inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/999999/bom/{{idRigaBomDaEliminare}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga con id inesistente da un progetto esistente (per testare il 404)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/999999
