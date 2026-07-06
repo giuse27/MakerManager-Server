@@ -54,7 +54,7 @@ import tools.jackson.databind.ObjectMapper;
 public class InizializzazioneService {
     
     private static final Logger logger = LogManager.getLogger(InizializzazioneService.class);
-    private static final String PERCORSO_JSON = "data/inzializzazione.json";
+    private static final String PERCORSO_JSON = "data/inizializzazione.json";
 
     private final ElementoCatalogoRepository catalogoRepo;
     private final InventarioRepository inventarioRepo;
@@ -132,6 +132,25 @@ public class InizializzazioneService {
         inventarioRepo.deleteAll();
         catalogoRepo.deleteAll();
         utenteRepo.deleteAllByNicknameNot(adminDefaultNickname);
+
+        /*
+         * Le delete derivate di Spring Data (deleteAll/deleteAllByNicknameNot)
+         * si limitano a REGISTRARE le rimozioni nel contesto di persistenza:
+         * le istruzioni DELETE fisiche vengono eseguite solo al prossimo
+         * flush, secondo l'ordine di flush "normale" di Hibernate. Le
+         * entita' con generazione IDENTITY (Utente compreso) devono pero'
+         * eseguire il loro INSERT immediatamente al momento del save (e'
+         * l'unico modo per ottenere subito l'id generato dal DB), scavalcando
+         * quell'ordine. Senza un flush esplicito qui, ricaricare un Utente
+         * con la stessa email/nickname di uno appena "cancellato" (esattamente
+         * il caso di un /inizializza richiamato su un sistema gia' inizializzato)
+         * fallisce con un vincolo di unicita' violato, perche' la vecchia riga
+         * e' ancora fisicamente presente sul DB quando parte il nuovo INSERT.
+         * Un flush su un singolo repository esegue comunque tutte le
+         * operazioni pendenti dell'intero contesto di persistenza (stessa
+         * transazione, stesso EntityManager), quindi basta chiamarlo una volta.
+         */
+        utenteRepo.flush();
 
     }
 
