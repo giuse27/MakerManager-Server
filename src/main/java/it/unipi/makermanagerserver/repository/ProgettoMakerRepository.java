@@ -19,4 +19,7 @@ public interface ProgettoMakerRepository extends JpaRepository<ProgettoMaker, Lo
     // trova progetti per tipologia
     List<ProgettoMaker> findByTipologia(TipologiaProgetto tipologia);
 
+    // trova i progetti creati da un utente
+    List<ProgettoMaker> findByAutoreId(Long idUtente);
+
 }

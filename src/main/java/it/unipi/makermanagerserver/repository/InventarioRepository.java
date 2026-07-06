@@ -14,10 +14,21 @@ public interface InventarioRepository extends JpaRepository<Inventario, Long> {
     // per risolvere i riferimenti testuali presenti nel JSON di caricamento
     Optional<Inventario> findByNome(String nome);
 
+    /**
     // Cerca tutti gli inventari appartenenti a un utente.
     // Query derivata: Spring Data JPA genera automaticamente
     // "SELECT * FROM inventario WHERE id_utente = ?" a partire dal nome del metodo,
     // senza bisogno di scrivere alcuna query SQL/JPQL a mano.
+    @deprecated
+    */
     List<Inventario> findByIdUtente(Long idUtente);
+
+    /**
+     * Il metodo seguente ricerca gli inventari appartenenti a un utente
+     * Nota che rispetto a findByIdUtente, qui si naviga attraverso l'entità
+     * utente e poi attraverso il suo id, prima l'utente era solo un numero
+     * adesso un'entità vera e propria
+     */
+    List<Inventario> findByUtenteId(Long idUtente);
 
 }
