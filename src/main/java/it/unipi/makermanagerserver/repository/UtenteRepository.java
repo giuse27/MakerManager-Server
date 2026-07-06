@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import it.unipi.makermanagerserver.enums.RuoloUtente;
 import it.unipi.makermanagerserver.model.user.Utente;
 
 @Repository
@@ -19,5 +20,11 @@ public interface UtenteRepository extends JpaRepository<Utente, Long> {
     // Verifica in fase di registrazione se email o nickname sono gia' in uso
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
+
+    // utility per l'inizializzazione
+    void deleteAllByNicknameNot(String nickname);
+
+    // Usato da AdminBootstrap per verificare se esiste gia' almeno un ADMIN
+    boolean existsByRuolo(RuoloUtente ruolo);
 
 }
