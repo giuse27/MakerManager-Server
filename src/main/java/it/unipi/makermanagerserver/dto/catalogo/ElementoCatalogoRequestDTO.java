@@ -1,5 +1,7 @@
 package it.unipi.makermanagerserver.dto.catalogo;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * DTO di RICHIESTA: rappresenta i dati che il client invia per creare
  * un nuovo ElementoCatalogo (POST /api/catalogo).
@@ -15,8 +17,12 @@ package it.unipi.makermanagerserver.dto.catalogo;
  */
 public class ElementoCatalogoRequestDTO {
 
+    @NotBlank(message = "Il nome dell'elemento è obbligatorio")
     private String nome;
+
     private String descrizione;
+
+    @NotBlank(message = "La tipologia dell'elemento è obbligatoria")
     private String tipologia;
 
     public ElementoCatalogoRequestDTO() {
