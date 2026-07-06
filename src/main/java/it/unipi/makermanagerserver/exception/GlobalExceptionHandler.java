@@ -66,6 +66,43 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Gestisce le credenziali non valide fornite in fase di login (email
+     * inesistente o password errata). Il service lancia sempre
+     * CredenzialiNonValideException con lo stesso messaggio generico in
+     * entrambi i casi, per non rivelare quale campo sia errato.
+     */
+    @ExceptionHandler(CredenzialiNonValideException.class)
+    public ResponseEntity<Map<String, String>> handleCredenzialiNonValide(CredenzialiNonValideException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errore", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Gestisce i casi in cui si tenti di creare una risorsa che confligge
+     * con una gia' esistente per un vincolo di unicita' (es. email o
+     * nickname gia' registrati in fase di registrazione).
+     */
+    @ExceptionHandler(RisorsaGiaEsistenteException.class)
+    public ResponseEntity<Map<String, String>> handleRisorsaGiaEsistente(RisorsaGiaEsistenteException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errore", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
+     * Gestisce i tentativi di un utente autenticato di operare su una
+     * risorsa (Inventario, ProgettoMaker, ...) che non gli appartiene,
+     * senza avere il ruolo ADMIN per un accesso esteso.
+     */
+    @ExceptionHandler(AccessoNegatoException.class)
+    public ResponseEntity<Map<String, String>> handleAccessoNegato(AccessoNegatoException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errore", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    /**
      * Fallback per qualsiasi altra eccezione non intercettata dagli handler
      * specifici sopra: bug non previsti, NullPointerException, errori interni
      * generici. Risponde sempre con 500 Internal Server Error: a differenza
