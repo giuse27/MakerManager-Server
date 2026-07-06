@@ -31,8 +31,8 @@ public class PermessiEndpointRepository {
     private static final Pattern INDICE_REGOLA = Pattern.compile("regola\\.(\\d+)\\.");
 
     // il file viene controllato ogni secondo (motivo i test)
-    // TODO impostare il valore a 5 s 
-    private static final long RITARDO_RICONTROLLO_MS = 5000L;
+    // ricorda di impostare il valore a 5 s 
+    private static final long RITARDO_RICONTROLLO_MS = 1000L;
 
     private final ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder;
 
