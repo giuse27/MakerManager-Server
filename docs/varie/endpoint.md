@@ -1,8 +1,15 @@
 # Endpoint esposti dal Server
 
 - [Endpoint esposti dal Server](#endpoint-esposti-dal-server)
+  - [Autenticazione e permessi](#autenticazione-e-permessi)
   - [Inizializzazione](#inizializzazione)
     - [Inizializza il database](#inizializza-il-database)
+  - [Autenticazione](#autenticazione)
+    - [Registrazione](#registrazione)
+    - [Login](#login)
+  - [Utenti](#utenti)
+    - [Visualizza il proprio profilo](#visualizza-il-proprio-profilo)
+    - [Visualizza tutti gli utenti](#visualizza-tutti-gli-utenti)
   - [Catalogo](#catalogo)
     - [Visualizza elementi in catalogo](#visualizza-elementi-in-catalogo)
     - [Aggiungi un elemento al catalogo](#aggiungi-un-elemento-al-catalogo)
@@ -19,10 +26,29 @@
     - [Visualizza tutti i progetti](#visualizza-tutti-i-progetti)
     - [Visualizza un progetto a partire dal suo `id`](#visualizza-un-progetto-a-partire-dal-suo-id)
     - [Visualizza i progetti di una tipologia](#visualizza-i-progetti-di-una-tipologia)
+    - [Visualizza i progetti di un utente](#visualizza-i-progetti-di-un-utente)
     - [Crea un nuovo progetto](#crea-un-nuovo-progetto)
     - [Elimina un progetto a partire dal suo `id`](#elimina-un-progetto-a-partire-dal-suo-id)
     - [Aggiungi una riga alla BOM di un progetto](#aggiungi-una-riga-alla-bom-di-un-progetto)
     - [Elimina una riga dalla BOM di un progetto a partire dal suo `id`](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id)
+
+## Autenticazione e permessi
+
+A partire da questa versione il server richiede autenticazione tramite **JWT** per la maggior parte degli endpoint. Il flusso è:
+
+1. Registrati con `POST /auth/registrazione` oppure autenticati con `POST /auth/login`: entrambi restituiscono un `token`.
+2. Aggiungi l'header `Authorization: Bearer <token>` a ogni richiesta successiva che lo richieda.
+
+Ogni utente ha un `ruolo`: `UTENTE` (assegnato automaticamente in fase di registrazione) oppure `ADMIN` (assegnato solo manualmente; il server crea comunque sempre un ADMIN di default al primo avvio, se non ne esiste già uno — vedi `AdminBootstrap` e le proprietà `admin.default.*` in `application.properties`).
+
+Per ogni endpoint qui sotto è indicato chi può raggiungerlo:
+
+- **PUBBLICO**: chiunque, anche senza token.
+- **AUTENTICATO**: chiunque abbia fatto login (UTENTE o ADMIN).
+- **ADMIN**: solo utenti con ruolo ADMIN.
+- **Proprietario o ADMIN**: oltre al ruolo richiesto sull'endpoint, il Service verifica anche che la risorsa (inventario, progetto, articolo, riga BOM) appartenga proprio all'utente autenticato, a meno che non sia ADMIN. In caso contrario risponde `403 Forbidden`.
+
+Le regole complete (che possono cambiare senza bisogno di ricompilare o riavviare il server) sono nel file `config/permessi-endpoint.properties`.
 
 ## Inizializzazione
 
@@ -32,14 +58,92 @@
 POST http://localhost:8080/inizializza
 ```
 
-Permette di inizializzare il database cancellando il suo contenuto e popolandolo con gli elementi, gli inventari, i progetti ecc contenuti nel file di inzializzazione json, posizionato in `src/main/resources/data/catalogo-iniziale.json`
+**Permessi:** ADMIN.
+
+Permette di inizializzare il database cancellando il suo contenuto (eccetto l'utente ADMIN di default) e popolandolo con gli elementi, gli inventari, gli utenti, i progetti ecc. contenuti nel file di inizializzazione JSON, posizionato in `src/main/resources/data/inizializzazione.json`.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X POST http://localhost:8080/inizializza
+curl -v -X POST http://localhost:8080/inizializza \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 > N.B. il `-v` non è obbligatorio, serve solo per mostrare l'output completo del server.
+
+## Autenticazione
+
+### Registrazione
+
+```js
+POST http://localhost:8080/auth/registrazione
+```
+
+**Permessi:** PUBBLICO.
+
+Registra un nuovo utente con ruolo `UTENTE` e restituisce subito un token JWT valido: non serve un login separato dopo la registrazione. Risponde con `201 Created`, `409 Conflict` se email o nickname sono già in uso, `400 Bad Request` se i dati non rispettano i vincoli (`nickname` obbligatorio, `email` obbligatoria e valida, `password` di almeno 8 caratteri).
+
+**Esempio da terminale:**
+```bash
+curl -X POST http://localhost:8080/auth/registrazione \
+     -H "Content-Type: application/json" \
+     -d '{
+           "nickname": "marioR",
+           "email": "mario.rossi@test.com",
+           "password": "password123"
+         }'
+```
+
+### Login
+
+```js
+POST http://localhost:8080/auth/login
+```
+
+**Permessi:** PUBBLICO.
+
+Verifica le credenziali fornite e restituisce un token JWT valido. Risponde con `401 Unauthorized` (messaggio generico, senza specificare se è sbagliata l'email o la password) se le credenziali non sono corrette.
+
+**Esempio da terminale:**
+```bash
+curl -X POST http://localhost:8080/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{
+           "email": "mario.rossi@test.com",
+           "password": "password123"
+         }'
+```
+
+## Utenti
+
+### Visualizza il proprio profilo
+
+```js
+GET http://localhost:8080/api/utenti/me
+```
+
+**Permessi:** AUTENTICATO. Restituisce sempre e solo il profilo di chi ha effettuato la richiesta (ricavato dal token, non da un parametro).
+
+**Esempio da terminale:**
+```bash
+curl -v http://localhost:8080/api/utenti/me \
+     -H "Authorization: Bearer {{token}}"
+```
+
+### Visualizza tutti gli utenti
+
+```js
+GET http://localhost:8080/api/utenti
+```
+
+**Permessi:** ADMIN.
+
+Restituisce l'elenco di tutti gli utenti registrati.
+
+**Esempio da terminale:**
+```bash
+curl -v http://localhost:8080/api/utenti \
+     -H "Authorization: Bearer {{tokenAdmin}}"
+```
 
 ## Catalogo
 
@@ -48,6 +152,8 @@ curl -v -X POST http://localhost:8080/inizializza
 ```js
 GET http://localhost:8080/api/catalogo
 ```
+
+**Permessi:** PUBBLICO.
 
 Restituisce la lista completa di elementi presenti in catalogo.
 
@@ -62,11 +168,14 @@ curl -v -X GET http://localhost:8080/api/catalogo
 POST http://localhost:8080/api/catalogo
 ```
 
+**Permessi:** AUTENTICATO. Chiunque abbia fatto login può contribuire al catalogo condiviso; solo l'eliminazione è riservata ad ADMIN (vedi endpoint successivo).
+
 Permette la creazione e l'inserimento di un elemento in catalogo dalle caratteristiche specificate.
 
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/catalogo \
+     -H "Authorization: Bearer {{token}}" \
      -H "Content-Type: application/json" \
      -d '{
            "nome": "Elemento Test Eliminazione",
@@ -78,20 +187,25 @@ curl -X POST http://localhost:8080/api/catalogo \
 ### Elimina un elemento dal catalogo a partire dal suo `id`
 
 > [!note]
-> L'operazione di eliminazione di un elemento dal catalogo è possibile solo se l'id di quell'elemento non funge da chiave esterna in nessun'altra tabella. Quindi un elemento può essere rimosso dal catalogo se e solo se nessun utente lo possiede nell'inventario e nessun progettto lo contiene nella sua B.O.M. 
+> L'operazione di eliminazione di un elemento dal catalogo è possibile solo se l'id di quell'elemento non funge da chiave esterna in nessun'altra tabella. Quindi un elemento può essere rimosso dal catalogo se e solo se nessun utente lo possiede nell'inventario e nessun progetto lo contiene nella sua B.O.M. Se referenziato, oggi il server risponde con `500 Internal Server Error` "grezzo" (il vincolo di integrità referenziale di MySQL risale non intercettato fino al `GlobalExceptionHandler` generico).
 
 ```js
 DELETE http://localhost:8080/api/catalogo/{id}
 ```
 
-Consente l'eliminazione di un elemento, a partire dal suo id, dal catalogo a patto che le condizioni descritte prima siano verificate. Bisogna solo sotituire `{id}` con l'id dell'elemento che si vuole rimuovere dal catalogo.
+**Permessi:** ADMIN.
+
+Consente l'eliminazione di un elemento, a partire dal suo id, dal catalogo a patto che le condizioni descritte prima siano verificate. Bisogna solo sostituire `{id}` con l'id dell'elemento che si vuole rimuovere dal catalogo.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X DELETE http://localhost:8080/api/catalogo/{id}
+curl -v -X DELETE http://localhost:8080/api/catalogo/{id} \
+     -H "Authorization: Bearer {{tokenAdmin}}"
 ```
 
 ## Inventario
+
+Un inventario è un dato **personale**: solo il proprietario o un ADMIN possono consultarlo o modificarlo. Il proprietario non è mai indicato dal client (né nel body né nel path): viene sempre ricavato dal token JWT di chi effettua la richiesta.
 
 ### Visualizza tutti gli inventari
 
@@ -99,11 +213,14 @@ curl -v -X DELETE http://localhost:8080/api/catalogo/{id}
 GET http://localhost:8080/api/inventario
 ```
 
+**Permessi:** ADMIN.
+
 Restituisce l'elenco di tutti gli inventari presenti nel database.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X GET http://localhost:8080/api/inventario
+curl -v -X GET http://localhost:8080/api/inventario \
+     -H "Authorization: Bearer {{tokenAdmin}}"
 ```
 
 ### Visualizza il contenuto di un inventario
@@ -112,11 +229,14 @@ curl -v -X GET http://localhost:8080/api/inventario
 GET http://localhost:8080/api/inventario/{idInventario}
 ```
 
-Restituisce la lista degli articoli contenuti nell'inventario indicato da `{idInventario}`.
+**Permessi:** Proprietario o ADMIN.
+
+Restituisce la lista degli articoli contenuti nell'inventario indicato da `{idInventario}`. Risponde con `403 Forbidden` se l'inventario non appartiene a chi effettua la richiesta, `404 Not Found` se l'id non esiste.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X GET http://localhost:8080/api/inventario/{idInventario}
+curl -v -X GET http://localhost:8080/api/inventario/{idInventario} \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 ### Visualizza gli inventari di un utente
@@ -125,11 +245,14 @@ curl -v -X GET http://localhost:8080/api/inventario/{idInventario}
 GET http://localhost:8080/api/inventario/utente/{idUtente}
 ```
 
-Restituisce l'elenco degli inventari associati all'utente indicato da `{idUtente}`.
+**Permessi:** Se stesso o ADMIN.
+
+Restituisce l'elenco degli inventari associati all'utente indicato da `{idUtente}`. Risponde con `403 Forbidden` se `{idUtente}` non corrisponde a chi effettua la richiesta.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X GET http://localhost:8080/api/inventario/utente/{idUtente}
+curl -v -X GET http://localhost:8080/api/inventario/utente/{idUtente} \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 ### Crea un nuovo inventario
@@ -138,15 +261,15 @@ curl -v -X GET http://localhost:8080/api/inventario/utente/{idUtente}
 POST http://localhost:8080/api/inventario
 ```
 
-Permette la creazione di un nuovo inventario, specificando il nome e l'id dell'utente proprietario.
+**Permessi:** AUTENTICATO. Il proprietario è sempre l'utente autenticato che effettua la richiesta: il body contiene solo il `nome`, non un `idUtente` scelto dal client.
 
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/inventario \
+     -H "Authorization: Bearer {{token}}" \
      -H "Content-Type: application/json" \
      -d '{
-           "nome": "Il mio primo inventario",
-           "idUtente": 1
+           "nome": "Il mio primo inventario"
          }'
 ```
 
@@ -159,11 +282,14 @@ curl -X POST http://localhost:8080/api/inventario \
 DELETE http://localhost:8080/api/inventario/{idInventario}
 ```
 
+**Permessi:** Proprietario o ADMIN.
+
 Consente l'eliminazione dell'inventario indicato da `{idInventario}`, insieme a tutti gli articoli che contiene.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X DELETE http://localhost:8080/api/inventario/{idInventario}
+curl -v -X DELETE http://localhost:8080/api/inventario/{idInventario} \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 ### Aggiungi un articolo a un inventario
@@ -175,11 +301,14 @@ curl -v -X DELETE http://localhost:8080/api/inventario/{idInventario}
 POST http://localhost:8080/api/inventario/articoli
 ```
 
+**Permessi:** Proprietario dell'inventario di destinazione o ADMIN.
+
 Permette la creazione di un nuovo articolo in inventario, specificando l'elemento di catalogo di riferimento, l'inventario di destinazione e la quantità.
 
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/inventario/articoli \
+     -H "Authorization: Bearer {{token}}" \
      -H "Content-Type: application/json" \
      -d '{
            "idElementoCatalogo": 1,
@@ -194,14 +323,19 @@ curl -X POST http://localhost:8080/api/inventario/articoli \
 DELETE http://localhost:8080/api/inventario/articoli/{idArticolo}
 ```
 
+**Permessi:** Proprietario dell'inventario a cui appartiene l'articolo, o ADMIN.
+
 Consente l'eliminazione dell'articolo indicato da `{idArticolo}`. Non è necessario indicare l'inventario di appartenenza, poiché l'id dell'articolo è già una chiave univoca in tutto il database.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X DELETE http://localhost:8080/api/inventario/articoli/{idArticolo}
+curl -v -X DELETE http://localhost:8080/api/inventario/articoli/{idArticolo} \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 ## Progetti
+
+I progetti compongono un catalogo **condiviso**: la lettura resta pubblica per chiunque (a differenza degli inventari). Solo le operazioni che modificano un progetto (creazione, eliminazione, modifica della BOM) richiedono autenticazione e sono legate alla proprietà: un progetto appartiene sempre a chi lo ha creato, e solo lui (o un ADMIN) può modificarlo o eliminarlo.
 
 ### Visualizza tutti i progetti
 
@@ -209,7 +343,9 @@ curl -v -X DELETE http://localhost:8080/api/inventario/articoli/{idArticolo}
 GET http://localhost:8080/api/progetti
 ```
 
-Restituisce la lista completa dei progetti presenti in catalogo.
+**Permessi:** PUBBLICO.
+
+Restituisce la lista completa dei progetti presenti in catalogo (vista sintetica, senza BOM).
 
 **Esempio da terminale:**
 ```bash
@@ -225,6 +361,8 @@ curl -v -X GET http://localhost:8080/api/progetti
 GET http://localhost:8080/api/progetti/{idProgetto}
 ```
 
+**Permessi:** PUBBLICO.
+
 Restituisce il progetto indicato da `{idProgetto}`, comprensivo della sua B.O.M. Risponde con 404 Not Found se l'id non corrisponde a nessun progetto esistente.
 
 **Esempio da terminale:**
@@ -238,27 +376,45 @@ curl -v -X GET http://localhost:8080/api/progetti/{idProgetto}
 GET http://localhost:8080/api/progetti/tipologia/{tipologia}
 ```
 
-Restituisce l'elenco dei progetti appartenenti alla tipologia indicata (`STAMPA_3D`, `ELETTRONICA`, `ROBOTICA`, `SOFTWARE`).
+**Permessi:** PUBBLICO.
+
+Restituisce l'elenco dei progetti appartenenti alla tipologia indicata (`STAMPA_3D`, `ELETTRONICA`, `ROBOTICA`, `SOFTWARE`). Risponde con `400 Bad Request` se la tipologia non è tra i valori ammessi.
 
 **Esempio da terminale:**
 ```bash
 curl -v -X GET http://localhost:8080/api/progetti/tipologia/STAMPA_3D
 ```
 
+### Visualizza i progetti di un utente
+
+```js
+GET http://localhost:8080/api/progetti/utente/{idUtente}
+```
+
+**Permessi:** PUBBLICO. Lettura pubblica: i progetti compongono un catalogo condiviso, non un dato personale (a differenza degli inventari).
+
+**Esempio da terminale:**
+```bash
+curl -v -X GET http://localhost:8080/api/progetti/utente/{idUtente}
+```
+
 ### Crea un nuovo progetto
 
 > [!note]
-> Il progetto viene creato con la B.O.M. (distinta base) vuota: la gestione delle righe della B.O.M. sarà affidata a endpoint dedicati in uno step successivo.
+> Il progetto viene creato con la B.O.M. (distinta base) vuota: la gestione delle righe della B.O.M. è affidata agli endpoint dedicati più sotto.
 
 ```js
 POST http://localhost:8080/api/progetti
 ```
+
+**Permessi:** AUTENTICATO. L'autore è sempre l'utente autenticato che effettua la richiesta.
 
 Permette la creazione di un nuovo progetto, specificando tipologia, nome e descrizione. Il campo `tipo` deve corrispondere a uno dei valori validi (`STAMPA_3D`, `ELETTRONICA`, `ROBOTICA`, `SOFTWARE`).
 
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/progetti \
+     -H "Authorization: Bearer {{token}}" \
      -H "Content-Type: application/json" \
      -d '{
            "tipo": "STAMPA_3D",
@@ -276,11 +432,14 @@ curl -X POST http://localhost:8080/api/progetti \
 DELETE http://localhost:8080/api/progetti/{idProgetto}
 ```
 
-Consente l'eliminazione del progetto indicato da `{idProgetto}`. Risponde con 204 No Content se la cancellazione ha successo, 404 Not Found se l'id non corrisponde a nessun progetto esistente.
+**Permessi:** Proprietario o ADMIN.
+
+Consente l'eliminazione del progetto indicato da `{idProgetto}`. Risponde con 204 No Content se la cancellazione ha successo, 403 Forbidden se il progetto non appartiene a chi effettua la richiesta, 404 Not Found se l'id non corrisponde a nessun progetto esistente.
 
 **Esempio da terminale:**
 ```bash
-curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}
+curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto} \
+     -H "Authorization: Bearer {{token}}"
 ```
 
 ### Aggiungi una riga alla BOM di un progetto
@@ -292,11 +451,17 @@ curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}
 POST http://localhost:8080/api/progetti/{idProgetto}/bom
 ```
 
-Aggiunge una nuova riga alla distinta base del progetto indicato da `{idProgetto}`, specificando l'elemento di catalogo richiesto e la quantità. Risponde con 201 Created e il DTO della riga appena creata, 404 Not Found se il progetto non esiste.
+**Permessi:** Proprietario del progetto o ADMIN.
+
+Aggiunge una nuova riga alla distinta base del progetto indicato da `{idProgetto}`, specificando l'elemento di catalogo richiesto e la quantità. Risponde con 201 Created e il DTO della riga appena creata, 404 Not Found se il progetto o l'elemento di catalogo non esistono.
+
+> [!warning]
+> Il DTO restituito da questa chiamata riporta oggi `id: null` per la riga appena creata (l'id generato dal database è presente solo se la riga viene poi riletta, ad es. con `GET /api/progetti/{idProgetto}`). La causa è che `ProgettoService.aggiungiRigaBOM` costruisce la risposta a partire dall'oggetto Java passato a `progettoRepo.save(...)`, mentre — trattandosi di un `ProgettoMaker` già esistente — quella `save` esegue una `merge()` che produce una copia gestita separata (con l'id popolato) invece di aggiornare l'istanza originale.
 
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
+     -H "Authorization: Bearer {{token}}" \
      -H "Content-Type: application/json" \
      -d '{
            "idElementoCatalogo": 1,
@@ -310,9 +475,12 @@ curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
 DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
 ```
 
+**Permessi:** Proprietario del progetto o ADMIN.
+
 Consente l'eliminazione della riga indicata da `{idRiga}` dalla B.O.M. del progetto `{idProgetto}`. Risponde con 204 No Content se la cancellazione ha successo, 404 Not Found se il progetto o la riga non esistono (o la riga non appartiene a quel progetto).
 
 **Esempio da terminale:**
 ```bash
-curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
+curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga} \
+     -H "Authorization: Bearer {{token}}"
 ```
