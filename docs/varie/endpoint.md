@@ -3,34 +3,34 @@
 - [Endpoint esposti dal Server](#endpoint-esposti-dal-server)
   - [Autenticazione e permessi](#autenticazione-e-permessi)
   - [Inizializzazione](#inizializzazione)
-    - [Inizializza il database](#inizializza-il-database)
+    - [Inizializza il database (ADMIN)](#inizializza-il-database-admin)
   - [Autenticazione](#autenticazione)
-    - [Registrazione](#registrazione)
-    - [Login](#login)
+    - [Registrazione (PUBBLICO)](#registrazione-pubblico)
+    - [Login (PUBBLICO)](#login-pubblico)
   - [Utenti](#utenti)
-    - [Visualizza il proprio profilo](#visualizza-il-proprio-profilo)
-    - [Visualizza tutti gli utenti](#visualizza-tutti-gli-utenti)
+    - [Visualizza il proprio profilo (AUTENTICATO)](#visualizza-il-proprio-profilo-autenticato)
+    - [Visualizza tutti gli utenti (ADMIN)](#visualizza-tutti-gli-utenti-admin)
   - [Catalogo](#catalogo)
-    - [Visualizza elementi in catalogo](#visualizza-elementi-in-catalogo)
-    - [Aggiungi un elemento al catalogo](#aggiungi-un-elemento-al-catalogo)
-    - [Elimina un elemento dal catalogo a partire dal suo `id`](#elimina-un-elemento-dal-catalogo-a-partire-dal-suo-id)
+    - [Visualizza elementi in catalogo (PUBBLICO)](#visualizza-elementi-in-catalogo-pubblico)
+    - [Aggiungi un elemento al catalogo (AUTENTICATO)](#aggiungi-un-elemento-al-catalogo-autenticato)
+    - [Elimina un elemento dal catalogo a partire dal suo `id` (ADMIN)](#elimina-un-elemento-dal-catalogo-a-partire-dal-suo-id-admin)
   - [Inventario](#inventario)
-    - [Visualizza tutti gli inventari](#visualizza-tutti-gli-inventari)
-    - [Visualizza il contenuto di un inventario](#visualizza-il-contenuto-di-un-inventario)
-    - [Visualizza gli inventari di un utente](#visualizza-gli-inventari-di-un-utente)
-    - [Crea un nuovo inventario](#crea-un-nuovo-inventario)
-    - [Elimina un inventario a partire dal suo `id`](#elimina-un-inventario-a-partire-dal-suo-id)
-    - [Aggiungi un articolo a un inventario](#aggiungi-un-articolo-a-un-inventario)
-    - [Elimina un articolo dall'inventario a partire dal suo `id`](#elimina-un-articolo-dallinventario-a-partire-dal-suo-id)
+    - [Visualizza tutti gli inventari (ADMIN)](#visualizza-tutti-gli-inventari-admin)
+    - [Visualizza il contenuto di un inventario (PROPRIETARIO / ADMIN)](#visualizza-il-contenuto-di-un-inventario-proprietario--admin)
+    - [Visualizza gli inventari di un utente (PROPRIETARIO / ADMIN)](#visualizza-gli-inventari-di-un-utente-proprietario--admin)
+    - [Crea un nuovo inventario (AUTENTICATO)](#crea-un-nuovo-inventario-autenticato)
+    - [Elimina un inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-inventario-a-partire-dal-suo-id-proprietario--admin)
+    - [Aggiungi un articolo a un inventario (PROPRIETARIO / ADMIN)](#aggiungi-un-articolo-a-un-inventario-proprietario--admin)
+    - [Elimina un articolo dall'inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-articolo-dallinventario-a-partire-dal-suo-id-proprietario--admin)
   - [Progetti](#progetti)
-    - [Visualizza tutti i progetti](#visualizza-tutti-i-progetti)
-    - [Visualizza un progetto a partire dal suo `id`](#visualizza-un-progetto-a-partire-dal-suo-id)
-    - [Visualizza i progetti di una tipologia](#visualizza-i-progetti-di-una-tipologia)
-    - [Visualizza i progetti di un utente](#visualizza-i-progetti-di-un-utente)
-    - [Crea un nuovo progetto](#crea-un-nuovo-progetto)
-    - [Elimina un progetto a partire dal suo `id`](#elimina-un-progetto-a-partire-dal-suo-id)
-    - [Aggiungi una riga alla BOM di un progetto](#aggiungi-una-riga-alla-bom-di-un-progetto)
-    - [Elimina una riga dalla BOM di un progetto a partire dal suo `id`](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id)
+    - [Visualizza tutti i progetti (PUBBLICO)](#visualizza-tutti-i-progetti-pubblico)
+    - [Visualizza un progetto a partire dal suo `id` (PUBBLICO)](#visualizza-un-progetto-a-partire-dal-suo-id-pubblico)
+    - [Visualizza i progetti di una tipologia (PUBBLICO)](#visualizza-i-progetti-di-una-tipologia-pubblico)
+    - [Visualizza i progetti di un utente (PUBBLICO)](#visualizza-i-progetti-di-un-utente-pubblico)
+    - [Crea un nuovo progetto (AUTENTICATO)](#crea-un-nuovo-progetto-autenticato)
+    - [Elimina un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-progetto-a-partire-dal-suo-id-proprietario--admin)
+    - [Aggiungi una riga alla BOM di un progetto (PROPRIETARIO / ADMIN)](#aggiungi-una-riga-alla-bom-di-un-progetto-proprietario--admin)
+    - [Elimina una riga dalla BOM di un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id-proprietario--admin)
 
 ## Autenticazione e permessi
 
@@ -52,7 +52,7 @@ Le regole complete (che possono cambiare senza bisogno di ricompilare o riavviar
 
 ## Inizializzazione
 
-### Inizializza il database
+### Inizializza il database (ADMIN)
 
 ```js
 POST http://localhost:8080/inizializza
@@ -72,7 +72,7 @@ curl -v -X POST http://localhost:8080/inizializza \
 
 ## Autenticazione
 
-### Registrazione
+### Registrazione (PUBBLICO)
 
 ```js
 POST http://localhost:8080/auth/registrazione
@@ -93,7 +93,7 @@ curl -X POST http://localhost:8080/auth/registrazione \
          }'
 ```
 
-### Login
+### Login (PUBBLICO)
 
 ```js
 POST http://localhost:8080/auth/login
@@ -115,7 +115,7 @@ curl -X POST http://localhost:8080/auth/login \
 
 ## Utenti
 
-### Visualizza il proprio profilo
+### Visualizza il proprio profilo (AUTENTICATO)
 
 ```js
 GET http://localhost:8080/api/utenti/me
@@ -129,7 +129,7 @@ curl -v http://localhost:8080/api/utenti/me \
      -H "Authorization: Bearer {{token}}"
 ```
 
-### Visualizza tutti gli utenti
+### Visualizza tutti gli utenti (ADMIN)
 
 ```js
 GET http://localhost:8080/api/utenti
@@ -147,7 +147,7 @@ curl -v http://localhost:8080/api/utenti \
 
 ## Catalogo
 
-### Visualizza elementi in catalogo
+### Visualizza elementi in catalogo (PUBBLICO)
 
 ```js
 GET http://localhost:8080/api/catalogo
@@ -162,7 +162,7 @@ Restituisce la lista completa di elementi presenti in catalogo.
 curl -v -X GET http://localhost:8080/api/catalogo
 ```
 
-### Aggiungi un elemento al catalogo
+### Aggiungi un elemento al catalogo (AUTENTICATO)
 
 ```js
 POST http://localhost:8080/api/catalogo
@@ -184,7 +184,7 @@ curl -X POST http://localhost:8080/api/catalogo \
          }'
 ```
 
-### Elimina un elemento dal catalogo a partire dal suo `id`
+### Elimina un elemento dal catalogo a partire dal suo `id` (ADMIN)
 
 > [!note]
 > L'operazione di eliminazione di un elemento dal catalogo è possibile solo se l'id di quell'elemento non funge da chiave esterna in nessun'altra tabella. Quindi un elemento può essere rimosso dal catalogo se e solo se nessun utente lo possiede nell'inventario e nessun progetto lo contiene nella sua B.O.M. Se referenziato, oggi il server risponde con `500 Internal Server Error` "grezzo" (il vincolo di integrità referenziale di MySQL risale non intercettato fino al `GlobalExceptionHandler` generico).
@@ -207,7 +207,7 @@ curl -v -X DELETE http://localhost:8080/api/catalogo/{id} \
 
 Un inventario è un dato **personale**: solo il proprietario o un ADMIN possono consultarlo o modificarlo. Il proprietario non è mai indicato dal client (né nel body né nel path): viene sempre ricavato dal token JWT di chi effettua la richiesta.
 
-### Visualizza tutti gli inventari
+### Visualizza tutti gli inventari (ADMIN)
 
 ```js
 GET http://localhost:8080/api/inventario
@@ -223,7 +223,7 @@ curl -v -X GET http://localhost:8080/api/inventario \
      -H "Authorization: Bearer {{tokenAdmin}}"
 ```
 
-### Visualizza il contenuto di un inventario
+### Visualizza il contenuto di un inventario (PROPRIETARIO / ADMIN)
 
 ```js
 GET http://localhost:8080/api/inventario/{idInventario}
@@ -239,7 +239,7 @@ curl -v -X GET http://localhost:8080/api/inventario/{idInventario} \
      -H "Authorization: Bearer {{token}}"
 ```
 
-### Visualizza gli inventari di un utente
+### Visualizza gli inventari di un utente (PROPRIETARIO / ADMIN)
 
 ```js
 GET http://localhost:8080/api/inventario/utente/{idUtente}
@@ -255,7 +255,7 @@ curl -v -X GET http://localhost:8080/api/inventario/utente/{idUtente} \
      -H "Authorization: Bearer {{token}}"
 ```
 
-### Crea un nuovo inventario
+### Crea un nuovo inventario (AUTENTICATO)
 
 ```js
 POST http://localhost:8080/api/inventario
@@ -273,7 +273,7 @@ curl -X POST http://localhost:8080/api/inventario \
          }'
 ```
 
-### Elimina un inventario a partire dal suo `id`
+### Elimina un inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)
 
 > [!note]
 > L'eliminazione di un inventario è distruttiva: cancella automaticamente anche tutti gli articoli in esso contenuti (relazione `Inventario` → `ArticoloInventario` con `cascade = CascadeType.ALL` e `orphanRemoval = true`). Non richiede la rimozione preventiva dei singoli articoli.
@@ -292,7 +292,7 @@ curl -v -X DELETE http://localhost:8080/api/inventario/{idInventario} \
      -H "Authorization: Bearer {{token}}"
 ```
 
-### Aggiungi un articolo a un inventario
+### Aggiungi un articolo a un inventario (PROPRIETARIO / ADMIN)
 
 > [!note]
 > A differenza degli altri endpoint di questa sezione, l'inventario di destinazione non viene indicato nell'URL ma nel body della richiesta (campo `idInventario`), perché un `ArticoloInventario` possiede già un proprio `id` univoco indipendente dall'inventario che lo contiene.
@@ -317,7 +317,7 @@ curl -X POST http://localhost:8080/api/inventario/articoli \
          }'
 ```
 
-### Elimina un articolo dall'inventario a partire dal suo `id`
+### Elimina un articolo dall'inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)
 
 ```js
 DELETE http://localhost:8080/api/inventario/articoli/{idArticolo}
@@ -337,7 +337,7 @@ curl -v -X DELETE http://localhost:8080/api/inventario/articoli/{idArticolo} \
 
 I progetti compongono un catalogo **condiviso**: la lettura resta pubblica per chiunque (a differenza degli inventari). Solo le operazioni che modificano un progetto (creazione, eliminazione, modifica della BOM) richiedono autenticazione e sono legate alla proprietà: un progetto appartiene sempre a chi lo ha creato, e solo lui (o un ADMIN) può modificarlo o eliminarlo.
 
-### Visualizza tutti i progetti
+### Visualizza tutti i progetti (PUBBLICO)
 
 ```js
 GET http://localhost:8080/api/progetti
@@ -352,7 +352,7 @@ Restituisce la lista completa dei progetti presenti in catalogo (vista sintetica
 curl -v -X GET http://localhost:8080/api/progetti
 ```
 
-### Visualizza un progetto a partire dal suo `id`
+### Visualizza un progetto a partire dal suo `id` (PUBBLICO)
 
 > [!note]
 > A differenza di `GET /api/progetti` (vista sintetica, senza BOM), questo endpoint restituisce tutti i dettagli del progetto inclusa la sua distinta base (`bom`), con l'elenco delle righe che la compongono.
@@ -370,7 +370,7 @@ Restituisce il progetto indicato da `{idProgetto}`, comprensivo della sua B.O.M.
 curl -v -X GET http://localhost:8080/api/progetti/{idProgetto}
 ```
 
-### Visualizza i progetti di una tipologia
+### Visualizza i progetti di una tipologia (PUBBLICO)
 
 ```js
 GET http://localhost:8080/api/progetti/tipologia/{tipologia}
@@ -385,7 +385,7 @@ Restituisce l'elenco dei progetti appartenenti alla tipologia indicata (`STAMPA_
 curl -v -X GET http://localhost:8080/api/progetti/tipologia/STAMPA_3D
 ```
 
-### Visualizza i progetti di un utente
+### Visualizza i progetti di un utente (PUBBLICO)
 
 ```js
 GET http://localhost:8080/api/progetti/utente/{idUtente}
@@ -398,7 +398,7 @@ GET http://localhost:8080/api/progetti/utente/{idUtente}
 curl -v -X GET http://localhost:8080/api/progetti/utente/{idUtente}
 ```
 
-### Crea un nuovo progetto
+### Crea un nuovo progetto (AUTENTICATO)
 
 > [!note]
 > Il progetto viene creato con la B.O.M. (distinta base) vuota: la gestione delle righe della B.O.M. è affidata agli endpoint dedicati più sotto.
@@ -423,7 +423,7 @@ curl -X POST http://localhost:8080/api/progetti \
          }'
 ```
 
-### Elimina un progetto a partire dal suo `id`
+### Elimina un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)
 
 > [!note]
 > L'eliminazione di un progetto è distruttiva: cancella automaticamente anche tutte le righe della sua B.O.M. (relazione `BOM` → `RigaBOM` con `cascade = CascadeType.ALL` e `orphanRemoval = true`). Non richiede la rimozione preventiva delle singole righe.
@@ -442,7 +442,7 @@ curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto} \
      -H "Authorization: Bearer {{token}}"
 ```
 
-### Aggiungi una riga alla BOM di un progetto
+### Aggiungi una riga alla BOM di un progetto (PROPRIETARIO / ADMIN)
 
 > [!note]
 > Come per gli articoli in inventario, l'elemento di catalogo richiesto viene indicato tramite il suo `id` (non il nome): va prima recuperato con `GET /api/catalogo`.
@@ -455,9 +455,6 @@ POST http://localhost:8080/api/progetti/{idProgetto}/bom
 
 Aggiunge una nuova riga alla distinta base del progetto indicato da `{idProgetto}`, specificando l'elemento di catalogo richiesto e la quantità. Risponde con 201 Created e il DTO della riga appena creata, 404 Not Found se il progetto o l'elemento di catalogo non esistono.
 
-> [!warning]
-> Il DTO restituito da questa chiamata riporta oggi `id: null` per la riga appena creata (l'id generato dal database è presente solo se la riga viene poi riletta, ad es. con `GET /api/progetti/{idProgetto}`). La causa è che `ProgettoService.aggiungiRigaBOM` costruisce la risposta a partire dall'oggetto Java passato a `progettoRepo.save(...)`, mentre — trattandosi di un `ProgettoMaker` già esistente — quella `save` esegue una `merge()` che produce una copia gestita separata (con l'id popolato) invece di aggiornare l'istanza originale.
-
 **Esempio da terminale:**
 ```bash
 curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
@@ -469,7 +466,7 @@ curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
          }'
 ```
 
-### Elimina una riga dalla BOM di un progetto a partire dal suo `id`
+### Elimina una riga dalla BOM di un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)
 
 ```js
 DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
