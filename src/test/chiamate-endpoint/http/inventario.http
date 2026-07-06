@@ -1,76 +1,110 @@
 ### Variabili
 @baseUrl = http://localhost:8080
+# NB: esegui prima auth.http e incolla qui i token ottenuti da login/registrazione.
+# @token / @idUtente = primo utente registrato (marioR); @token2 / @idUtente2 =
+# secondo utente (luigiB), usato solo per i test di ownership 403.
+@token = INCOLLA_QUI_IL_TOKEN_UTENTE
+@idUtente = 1
+@token2 = INCOLLA_QUI_IL_TOKEN_SECONDO_UTENTE
+@tokenAdmin = INCOLLA_QUI_IL_TOKEN_ADMIN
 
 ### -----------------------------------------------------------------------
 ### INVENTARIO — /api/inventario
 ### -----------------------------------------------------------------------
-
-
+### Un inventario è un dato personale: solo il proprietario o un ADMIN
+### possono consultarlo/modificarlo (vedi docs/varie/endpoint.md).
 
 ### -----------------------------------------------------------------------
-### Visualizza tutti gli inventari
+### Visualizza tutti gli inventari (riservato ad ADMIN)
 ### -----------------------------------------------------------------------
 GET {{baseUrl}}/api/inventario
+Authorization: Bearer {{tokenAdmin}}
 
 ### -----------------------------------------------------------------------
-### Visualizza il contenuto di un inventario
+### Visualizza tutti gli inventari come UTENTE normale (per testare il 403 Forbidden)
 ### -----------------------------------------------------------------------
-# NB: sostituisci {{idInventario}} con un id reale (es. dopo /inizializza)
-@idInventario = 1
-GET {{baseUrl}}/api/inventario/{{idInventario}}
-
-### -----------------------------------------------------------------------
-### Visualizza il contenuto di un inventario inesistente (per testare il 404)
-### -----------------------------------------------------------------------
-GET {{baseUrl}}/api/inventario/999999
-
-### -----------------------------------------------------------------------
-### Visualizza il contenuto di un inventario che esiste ma senza articoli
-### -----------------------------------------------------------------------
-# NB: crea prima un inventario "vuoto" con la POST qui sotto e usane l'id.
-# Risposta attesa: [] (non un errore)
-@idInventarioVuoto = 3
-GET {{baseUrl}}/api/inventario/{{idInventarioVuoto}}
-
-### -----------------------------------------------------------------------
-### Visualizza gli inventari di un utente
-### -----------------------------------------------------------------------
-@idUtente = 1
-GET {{baseUrl}}/api/inventario/utente/{{idUtente}}
+GET {{baseUrl}}/api/inventario
+Authorization: Bearer {{token}}
 
 ### -----------------------------------------------------------------------
 ### Crea un nuovo inventario
+### -----------------------------------------------------------------------
+# NB: il proprietario è sempre l'utente autenticato (ricavato dal token),
+# non un idUtente passato dal client: il body contiene solo il nome.
+POST {{baseUrl}}/api/inventario
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Il mio primo inventario"
+}
+
+### -----------------------------------------------------------------------
+### Crea un nuovo inventario senza token (per testare il 401/403)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/inventario
 Content-Type: application/json
 
 {
-  "nome": "Il mio primo inventario",
-  "idUtente": 1
+  "nome": "Inventario senza autenticazione"
 }
 
 ### -----------------------------------------------------------------------
 ### Crea un nuovo inventario con nome mancante (per testare la validazione @NotBlank -> 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/inventario
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "idUtente": 1
 }
 
 ### -----------------------------------------------------------------------
-### Crea un nuovo inventario SENZA idUtente ("orfano")
+### Visualizza il contenuto di un inventario (come proprietario)
 ### -----------------------------------------------------------------------
-# NB: InventarioRequestDTO.idUtente non ha @NotNull, quindi oggi questo è
-# legittimo (coerente con la roadmap: l'entità Utente arriva in una versione
-# futura). Risposta attesa: 201 Created con idUtente: null nel body.
-POST {{baseUrl}}/api/inventario
-Content-Type: application/json
+# NB: sostituisci {{idInventario}} con un id reale (es. quello restituito dalla POST sopra)
+@idInventario = 1
+GET {{baseUrl}}/api/inventario/{{idInventario}}
+Authorization: Bearer {{token}}
 
-{
-  "nome": "Inventario senza proprietario"
-}
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/{{idInventario}}
+Authorization: Bearer {{token2}}
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario altrui come ADMIN (consentito)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/{{idInventario}}
+Authorization: Bearer {{tokenAdmin}}
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/999999
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Visualizza il contenuto di un inventario che esiste ma senza articoli
+### -----------------------------------------------------------------------
+# NB: crea prima un inventario "vuoto" con la POST qui sopra e usane l'id.
+# Risposta attesa: [] (non un errore)
+@idInventarioVuoto = 2
+GET {{baseUrl}}/api/inventario/{{idInventarioVuoto}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Visualizza gli inventari dell'utente autenticato (se stesso)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/utente/{{idUtente}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Visualizza gli inventari di un altro utente (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/inventario/utente/{{idUtente}}
+Authorization: Bearer {{token2}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un inventario a partire dal suo id
@@ -78,11 +112,19 @@ Content-Type: application/json
 # ATTENZIONE: elimina in cascata tutti gli articoli contenuti
 @idInventarioDaEliminare = 2
 DELETE {{baseUrl}}/api/inventario/{{idInventarioDaEliminare}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Elimina un inventario altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/inventario/{{idInventario}}
+Authorization: Bearer {{token2}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un inventario con id inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/inventario/999999
+Authorization: Bearer {{token}}
 
 
 
@@ -93,10 +135,24 @@ DELETE {{baseUrl}}/api/inventario/999999
 ### -----------------------------------------------------------------------
 
 ### -----------------------------------------------------------------------
-### Aggiungi un articolo a un inventario
+### Aggiungi un articolo a un inventario proprio
 ### -----------------------------------------------------------------------
 # NB: idElementoCatalogo e idInventario devono già esistere nel DB
 POST {{baseUrl}}/api/inventario/articoli
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "idInventario": 1,
+  "quantita": 2
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi un articolo a un inventario altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/inventario/articoli
+Authorization: Bearer {{token2}}
 Content-Type: application/json
 
 {
@@ -109,6 +165,7 @@ Content-Type: application/json
 ### Aggiungi un articolo con quantità non valida (per testare @Min -> 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/inventario/articoli
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -121,6 +178,7 @@ Content-Type: application/json
 ### Aggiungi un articolo riferendo un elemento di catalogo inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/inventario/articoli
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -134,8 +192,16 @@ Content-Type: application/json
 ### -----------------------------------------------------------------------
 @idArticolo = 1
 DELETE {{baseUrl}}/api/inventario/articoli/{{idArticolo}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Elimina un articolo da un inventario altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/inventario/articoli/{{idArticolo}}
+Authorization: Bearer {{token2}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un articolo con id inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/inventario/articoli/999999
+Authorization: Bearer {{token}}

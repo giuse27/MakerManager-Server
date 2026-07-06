@@ -1,5 +1,7 @@
 ### Variabili
 @baseUrl = http://localhost:8080
+# NB: esegui prima auth.http (login come admin) e incolla qui il token ottenuto
+@tokenAdmin = INCOLLA_QUI_IL_TOKEN_ADMIN
 
 ### -----------------------------------------------------------------------
 ### INIZIALIZZAZIONE
@@ -8,5 +10,19 @@
 ### -----------------------------------------------------------------------
 ### Inizializza (o re-inizializza) il database dal JSON di caricamento
 ### -----------------------------------------------------------------------
-# Cancella tutti i dati esistenti e ricarica da catalogo-iniziale.json
+# Cancella tutti i dati esistenti (tranne l'utente ADMIN di default) e
+# ricarica da data/inizializzazione.json. Riservato ad ADMIN.
 POST {{baseUrl}}/inizializza
+Authorization: Bearer {{tokenAdmin}}
+
+### -----------------------------------------------------------------------
+### Inizializza senza token (per testare il 401/403: riservato ad ADMIN)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/inizializza
+
+### -----------------------------------------------------------------------
+### Inizializza autenticato ma come UTENTE normale (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+@token = INCOLLA_QUI_IL_TOKEN_UTENTE
+POST {{baseUrl}}/inizializza
+Authorization: Bearer {{token}}

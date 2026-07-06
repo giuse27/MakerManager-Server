@@ -1,0 +1,32 @@
+### Variabili
+@baseUrl = http://localhost:8080
+# NB: esegui prima auth.http e incolla qui i token ottenuti da login/registrazione
+@token = INCOLLA_QUI_IL_TOKEN_UTENTE
+@tokenAdmin = INCOLLA_QUI_IL_TOKEN_ADMIN
+
+### -----------------------------------------------------------------------
+### UTENTI — /api/utenti
+### -----------------------------------------------------------------------
+
+### -----------------------------------------------------------------------
+### Visualizza il proprio profilo (qualunque utente autenticato)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/utenti/me
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Visualizza il proprio profilo senza token (per testare il 401/403)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/utenti/me
+
+### -----------------------------------------------------------------------
+### Visualizza tutti gli utenti come ADMIN
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/utenti
+Authorization: Bearer {{tokenAdmin}}
+
+### -----------------------------------------------------------------------
+### Visualizza tutti gli utenti come UTENTE normale (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/utenti
+Authorization: Bearer {{token}}

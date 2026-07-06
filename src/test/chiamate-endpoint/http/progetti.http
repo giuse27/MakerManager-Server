@@ -1,12 +1,19 @@
 ### Variabili
 @baseUrl = http://localhost:8080
+# NB: esegui prima auth.http e incolla qui i token ottenuti da login/registrazione
+@token = INCOLLA_QUI_IL_TOKEN_UTENTE
+@idUtente = 1
+@token2 = INCOLLA_QUI_IL_TOKEN_SECONDO_UTENTE
+@tokenAdmin = INCOLLA_QUI_IL_TOKEN_ADMIN
 
 ### -----------------------------------------------------------------------
 ### PROGETTI — /api/progetti
 ### -----------------------------------------------------------------------
+### Lettura pubblica (catalogo condiviso); scrittura riservata a chi ha
+### fatto login, con verifica di proprietà su modifica/eliminazione.
 
 ### -----------------------------------------------------------------------
-### Visualizza tutti i progetti
+### Visualizza tutti i progetti (pubblico, nessun token)
 ### -----------------------------------------------------------------------
 GET {{baseUrl}}/api/progetti
 
@@ -41,13 +48,20 @@ GET {{baseUrl}}/api/progetti/tipologia/SOFTWARE
 GET {{baseUrl}}/api/progetti/tipologia/TIPOLOGIA_INESISTENTE
 
 ### -----------------------------------------------------------------------
+### Visualizza i progetti di un utente (pubblico, nessun token)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti/utente/{{idUtente}}
+
+### -----------------------------------------------------------------------
 ### Crea un nuovo progetto (BOM vuota di default)
 ### -----------------------------------------------------------------------
+# L'autore è sempre l'utente autenticato (ricavato dal token).
 # NB: ProgettoResponseDTO non espone ancora la BOM, quindi per verificare
 # che sia stata creata vuota devi controllare direttamente il DB
 # (tabella righe_bom: non deve comparire nessuna riga con il progetto_id
-# appena creato). È solo una conferma di comportamento, non un caso di errore.
+# appena creato), oppure fare subito dopo una GET /api/progetti/{id}.
 POST {{baseUrl}}/api/progetti
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -57,9 +71,22 @@ Content-Type: application/json
 }
 
 ### -----------------------------------------------------------------------
+### Crea un nuovo progetto senza token (per testare il 401/403)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti
+Content-Type: application/json
+
+{
+  "tipo": "STAMPA_3D",
+  "nome": "Progetto senza autenticazione",
+  "descrizione": "Deve fallire"
+}
+
+### -----------------------------------------------------------------------
 ### Crea un nuovo progetto con tipo non valido (per testare il 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -72,6 +99,7 @@ Content-Type: application/json
 ### Crea un nuovo progetto senza nome (per testare la validazione @NotBlank -> 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -84,11 +112,19 @@ Content-Type: application/json
 ### -----------------------------------------------------------------------
 @idProgettoDaEliminare = 2
 DELETE {{baseUrl}}/api/progetti/{{idProgettoDaEliminare}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Elimina un progetto altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/{{idProgetto}}
+Authorization: Bearer {{token2}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un progetto con id inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/progetti/999999
+Authorization: Bearer {{token}}
 
 
 
@@ -98,11 +134,28 @@ DELETE {{baseUrl}}/api/progetti/999999
 ### -----------------------------------------------------------------------
 
 ### -----------------------------------------------------------------------
-### Aggiungi una riga alla B.O.M. di un progetto
+### Aggiungi una riga alla B.O.M. di un progetto proprio
 ### -----------------------------------------------------------------------
-# NB: idProgetto e idElementoCatalogo devono già esistere nel DB
+# NB: idProgetto e idElementoCatalogo devono già esistere nel DB.
+# ATTESO OGGI: 201 Created ma con "id": null nel body della risposta (l'id
+# generato viene assegnato correttamente nel DB, ma non compare nel DTO
+# restituito da questa chiamata — verificabile con la GET più sotto).
+# Vedi la nota di attenzione in docs/varie/endpoint.md.
 @idProgettoConBom = 1
 POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "idElementoCatalogo": 1,
+  "quantita": 1
+}
+
+### -----------------------------------------------------------------------
+### Aggiungi una riga alla B.O.M. di un progetto altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Authorization: Bearer {{token2}}
 Content-Type: application/json
 
 {
@@ -114,6 +167,7 @@ Content-Type: application/json
 ### Aggiungi una riga alla B.O.M. con quantità non valida (per testare @Min -> 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -125,6 +179,7 @@ Content-Type: application/json
 ### Aggiungi una riga alla B.O.M. senza idElementoCatalogo (per testare @NotNull -> 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -135,6 +190,7 @@ Content-Type: application/json
 ### Aggiungi una riga riferendo un progetto inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti/999999/bom
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -146,6 +202,7 @@ Content-Type: application/json
 ### Aggiungi una riga riferendo un elemento di catalogo inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -154,7 +211,7 @@ Content-Type: application/json
 }
 
 ### -----------------------------------------------------------------------
-### Verifica il contenuto della B.O.M. dopo le aggiunte
+### Verifica il contenuto della B.O.M. dopo le aggiunte (pubblico, nessun token)
 ### -----------------------------------------------------------------------
 # Usa la GET per id già presente sopra per controllare l'elenco "bom" nella risposta
 GET {{baseUrl}}/api/progetti/{{idProgettoConBom}}
@@ -162,16 +219,26 @@ GET {{baseUrl}}/api/progetti/{{idProgettoConBom}}
 ### -----------------------------------------------------------------------
 ### Elimina una riga dalla B.O.M. di un progetto
 ### -----------------------------------------------------------------------
-# NB: sostituisci con un id di riga reale ottenuto dalla POST o dalla GET sopra
+# NB: sostituisci con un id di riga reale ottenuto dalla GET sopra (la POST
+# non lo riporta correttamente, vedi nota più sopra)
 @idRigaBomDaEliminare = 1
 DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/{{idRigaBomDaEliminare}}
+Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Elimina una riga dalla B.O.M. di un progetto altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/{{idRigaBomDaEliminare}}
+Authorization: Bearer {{token2}}
 
 ### -----------------------------------------------------------------------
 ### Elimina una riga da un progetto inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/progetti/999999/bom/{{idRigaBomDaEliminare}}
+Authorization: Bearer {{token}}
 
 ### -----------------------------------------------------------------------
 ### Elimina una riga con id inesistente da un progetto esistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/999999
+Authorization: Bearer {{token}}

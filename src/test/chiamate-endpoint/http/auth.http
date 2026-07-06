@@ -1,0 +1,115 @@
+### Variabili
+@baseUrl = http://localhost:8080
+
+### -----------------------------------------------------------------------
+### AUTENTICAZIONE — /auth
+### -----------------------------------------------------------------------
+### NB: eseguire prima questo file per ottenere i token da riusare negli
+### altri file .http (copia manualmente il valore "token" dalla risposta
+### nelle variabili @token / @tokenAdmin degli altri file).
+
+### -----------------------------------------------------------------------
+### Registra un nuovo utente (ruolo UTENTE, token restituito subito)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/registrazione
+Content-Type: application/json
+
+{
+  "nickname": "marioR",
+  "email": "mario.rossi@test.com",
+  "password": "password123"
+}
+
+### -----------------------------------------------------------------------
+### Registra un secondo utente (utile per i test di ownership 403 negli altri file)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/registrazione
+Content-Type: application/json
+
+{
+  "nickname": "luigiB",
+  "email": "luigi.bianchi@test.com",
+  "password": "password123"
+}
+
+### -----------------------------------------------------------------------
+### Registrazione con email già in uso (per testare il 409 Conflict)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/registrazione
+Content-Type: application/json
+
+{
+  "nickname": "marioR2",
+  "email": "mario.rossi@test.com",
+  "password": "password123"
+}
+
+### -----------------------------------------------------------------------
+### Registrazione con password troppo corta (per testare @Size -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/registrazione
+Content-Type: application/json
+
+{
+  "nickname": "utenteBreve",
+  "email": "breve@test.com",
+  "password": "1234"
+}
+
+### -----------------------------------------------------------------------
+### Registrazione con email non valida (per testare @Email -> 400)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/registrazione
+Content-Type: application/json
+
+{
+  "nickname": "utenteEmailSbagliata",
+  "email": "non-e-una-email",
+  "password": "password123"
+}
+
+### -----------------------------------------------------------------------
+### Login con l'utente registrato sopra
+### -----------------------------------------------------------------------
+# NB: copia il campo "token" della risposta nella variabile @token degli altri file .http
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "mario.rossi@test.com",
+  "password": "password123"
+}
+
+### -----------------------------------------------------------------------
+### Login come admin di default (credenziali da application.properties)
+### -----------------------------------------------------------------------
+# NB: copia il campo "token" della risposta nella variabile @tokenAdmin degli altri file .http
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "giuse27.admin@makermanager.com",
+  "password": "password_segretissima_1234"
+}
+
+### -----------------------------------------------------------------------
+### Login con password errata (per testare il 401 Unauthorized)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "mario.rossi@test.com",
+  "password": "password-sbagliata"
+}
+
+### -----------------------------------------------------------------------
+### Login con email inesistente (per testare il 401 Unauthorized)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nessuno@test.com",
+  "password": "password123"
+}

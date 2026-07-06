@@ -2,13 +2,16 @@
 ### Variabili
 ### -----------------------------------------------------------------------
 @baseUrl = http://localhost:8080
+# NB: esegui prima auth.http e incolla qui i token ottenuti da login/registrazione
+@token = INCOLLA_QUI_IL_TOKEN_UTENTE
+@tokenAdmin = INCOLLA_QUI_IL_TOKEN_ADMIN
 
 ### -----------------------------------------------------------------------
 ### CATALOGO — /api/catalogo
 ### -----------------------------------------------------------------------
 
 ### -----------------------------------------------------------------------
-### Visualizza tutti gli elementi in catalogo
+### Visualizza tutti gli elementi in catalogo (pubblico, nessun token)
 ### -----------------------------------------------------------------------
 # NB: se il DB è vuoto (mai chiamato /inizializza) la risposta attesa è []
 GET {{baseUrl}}/api/catalogo
@@ -16,7 +19,10 @@ GET {{baseUrl}}/api/catalogo
 ### -----------------------------------------------------------------------
 ### Aggiungi un elemento al catalogo (COMPONENTE_ELETTRONICO)
 ### -----------------------------------------------------------------------
+# NB: oggi basta essere AUTENTICATO (UTENTE o ADMIN), non serve ADMIN — vedi
+# la nota di attenzione in permessi-endpoint.properties / docs/varie/endpoint.md
 POST {{baseUrl}}/api/catalogo
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -29,6 +35,7 @@ Content-Type: application/json
 ### Aggiungi un elemento al catalogo (MATERIALE_CONSUMABILE)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/catalogo
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -38,9 +45,22 @@ Content-Type: application/json
 }
 
 ### -----------------------------------------------------------------------
+### Aggiungi un elemento al catalogo senza token (per testare il 401/403)
+### -----------------------------------------------------------------------
+POST {{baseUrl}}/api/catalogo
+Content-Type: application/json
+
+{
+  "nome": "Elemento senza autenticazione",
+  "descrizione": "Deve fallire",
+  "tipologia": "COMPONENTE_ELETTRONICO"
+}
+
+### -----------------------------------------------------------------------
 ### Aggiungi un elemento al catalogo con tipologia NON valida (per testare il 400)
 ### -----------------------------------------------------------------------
 POST {{baseUrl}}/api/catalogo
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -50,16 +70,41 @@ Content-Type: application/json
 }
 
 ### -----------------------------------------------------------------------
+### Aggiungi un elemento al catalogo senza nome
+### -----------------------------------------------------------------------
+# ATTESO OGGI: 201 Created con "nome": null — ElementoCatalogoRequestDTO non
+# ha vincoli di validazione e il controller non usa @Validated (a differenza
+# di InventarioRequestDTO/ProgettoRequestDTO/RigaBOMRequestDTO). Non è il
+# comportamento desiderato: segnalato in docs/varie/endpoint.md.
+POST {{baseUrl}}/api/catalogo
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "descrizione": "Creato senza nome, non dovrebbe essere permesso",
+  "tipologia": "SOFTWARE"
+}
+
+### -----------------------------------------------------------------------
 ### Elimina un elemento dal catalogo a partire dal suo id
 ### -----------------------------------------------------------------------
-# NB: sostituisci {{idCatalogo}} con un id reale ottenuto dalla GET sopra
+# NB: sostituisci {{idCatalogo}} con un id reale ottenuto dalla GET sopra.
+# Riservato ad ADMIN.
 @idCatalogo = 1
 DELETE {{baseUrl}}/api/catalogo/{{idCatalogo}}
+Authorization: Bearer {{tokenAdmin}}
+
+### -----------------------------------------------------------------------
+### Elimina un elemento dal catalogo come UTENTE normale (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+DELETE {{baseUrl}}/api/catalogo/{{idCatalogo}}
+Authorization: Bearer {{token}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un elemento dal catalogo con id inesistente (per testare il 404)
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/catalogo/999999
+Authorization: Bearer {{tokenAdmin}}
 
 ### -----------------------------------------------------------------------
 ### Elimina un elemento ANCORA referenziato da un ArticoloInventario o da una RigaBOM
@@ -73,3 +118,4 @@ DELETE {{baseUrl}}/api/catalogo/999999
 # "Raspberry Pi 4 Model B" dopo /inizializza (verificalo con la GET sopra)
 @idCatalogoReferenziato = 1
 DELETE {{baseUrl}}/api/catalogo/{{idCatalogoReferenziato}}
+Authorization: Bearer {{tokenAdmin}}
