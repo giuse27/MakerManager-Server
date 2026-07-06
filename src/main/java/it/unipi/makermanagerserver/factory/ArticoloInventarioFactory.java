@@ -5,8 +5,10 @@ import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.model.catalog.ElementoCatalogo;
 import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
 import it.unipi.makermanagerserver.model.inventory.Inventario;
+import it.unipi.makermanagerserver.model.inventory.specific.AttrezzoDaLavoro;
 import it.unipi.makermanagerserver.model.inventory.specific.ComponenteElettronico;
 import it.unipi.makermanagerserver.model.inventory.specific.MaterialeConsumabile;
+import it.unipi.makermanagerserver.model.inventory.specific.Software;
 
 /**
  * ATTENZIONE
@@ -51,6 +53,8 @@ public class ArticoloInventarioFactory {
 
             case COMPONENTE_ELETTRONICO -> new ComponenteElettronico(elemento, inventario, quantita);
             case MATERIALE_CONSUMABILE -> new MaterialeConsumabile(elemento, inventario, quantita);
+            case ATTREZZO_DA_LAVORO -> new AttrezzoDaLavoro(elemento, inventario, quantita);
+            case SOFTWARE -> new Software(elemento, inventario, quantita);
             
             default -> throw new DatiNonValidiException(
                 "Tipologia di articolo non ancora supportata: " + tipo 
