@@ -31,10 +31,6 @@ public class Inventario {
 
     private String nome;
 
-    // TODO segnaposto di tipo Long in attesa dell'implementazione dell'utente nella v1.0.0
-    // rimuoverò idUtente quando funzionerà tutto
-    private Long idUtente;
-
     /**
      * Appartenenza dell'inventario (uno o più) all'utente
      */
@@ -66,9 +62,9 @@ public class Inventario {
     public Inventario() {
     }
  
-    public Inventario(String nome, Long idUtente) {
+    public Inventario(String nome, Utente utente) {
         this.nome = nome;
-        this.idUtente = idUtente;
+        this.utente = utente;
     }
 
     // GETTER E SETTER
@@ -83,14 +79,6 @@ public class Inventario {
  
     public void setNome(String nome) {
         this.nome = nome;
-    }
-    
-    public Long getIdUtente() {
-        return idUtente;
-    }
- 
-    public void setIdUtente(Long idUtente) {
-        this.idUtente = idUtente;
     }
 
     public Utente getUtente() {

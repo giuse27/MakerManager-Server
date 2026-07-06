@@ -8,7 +8,7 @@ package it.unipi.makermanagerserver.dto.inizializza;
 public class InventarioInitDTO {
 
     private String nome;
-    private Long idUtente;
+    private String utente;
 
     public InventarioInitDTO() {
 
@@ -22,12 +22,12 @@ public class InventarioInitDTO {
         this.nome = nome;
     }
 
-    public Long getIdUtente() {
-        return idUtente;
+    public String getUtente() {
+        return utente;
     }
 
-    public void setIdUtente(Long idUtente) {
-        this.idUtente = idUtente;
+    public void setUtente(String utente) {
+        this.utente = utente;
     }
     
 }

@@ -16,6 +16,7 @@ public class ProgettoInitDTO {
     private String tipo;
     private String nome;
     private String descrizione;
+    private String autore;
     private List<RigaBOMInitDTO> bom;
 
     public ProgettoInitDTO() {
@@ -44,6 +45,14 @@ public class ProgettoInitDTO {
 
     public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
+    }
+
+    public String getAutore() {
+        return autore;
+    }
+
+    public void setAutore(String autore) {
+        this.autore = autore;
     }
 
     public List<RigaBOMInitDTO> getBom() {

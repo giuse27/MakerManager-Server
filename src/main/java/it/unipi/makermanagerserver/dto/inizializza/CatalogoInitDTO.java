@@ -19,6 +19,7 @@ public class CatalogoInitDTO {
     private List<InventarioInitDTO> inventari;
     private List<ArticoloInventarioInitDTO> articoliInventario;
     private List<ProgettoInitDTO> progetti;
+    private List<UtenteInitDTO> utenti;
 
     public CatalogoInitDTO() {
 
@@ -54,6 +55,14 @@ public class CatalogoInitDTO {
 
     public void setProgetti(List<ProgettoInitDTO> progetti) {
         this.progetti = progetti;
+    }
+
+    public List<UtenteInitDTO> getUtenti() {
+        return utenti;
+    }
+
+    public void setUtenti(List<UtenteInitDTO> utenti) {
+        this.utenti = utenti;
     }
     
 }
