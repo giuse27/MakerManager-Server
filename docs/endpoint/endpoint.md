@@ -21,6 +21,7 @@
     - [Crea un nuovo inventario (AUTENTICATO)](#crea-un-nuovo-inventario-autenticato)
     - [Elimina un inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-inventario-a-partire-dal-suo-id-proprietario--admin)
     - [Aggiungi un articolo a un inventario (PROPRIETARIO / ADMIN)](#aggiungi-un-articolo-a-un-inventario-proprietario--admin)
+    - [Aggiorna la quantità di un articolo (PROPRIETARIO / ADMIN)](#aggiorna-la-quantità-di-un-articolo-proprietario--admin)
     - [Elimina un articolo dall'inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-articolo-dallinventario-a-partire-dal-suo-id-proprietario--admin)
   - [Progetti](#progetti)
     - [Visualizza tutti i progetti (PUBBLICO)](#visualizza-tutti-i-progetti-pubblico)
@@ -30,6 +31,7 @@
     - [Crea un nuovo progetto (AUTENTICATO)](#crea-un-nuovo-progetto-autenticato)
     - [Elimina un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-un-progetto-a-partire-dal-suo-id-proprietario--admin)
     - [Aggiungi una riga alla BOM di un progetto (PROPRIETARIO / ADMIN)](#aggiungi-una-riga-alla-bom-di-un-progetto-proprietario--admin)
+    - [Aggiorna la quantità di una riga della BOM (PROPRIETARIO / ADMIN)](#aggiorna-la-quantità-di-una-riga-della-bom-proprietario--admin)
     - [Elimina una riga dalla BOM di un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id-proprietario--admin)
 
 ## Autenticazione e permessi
@@ -317,6 +319,26 @@ curl -X POST http://localhost:8080/api/inventario/articoli \
          }'
 ```
 
+### Aggiorna la quantità di un articolo (PROPRIETARIO / ADMIN)
+
+```js
+PATCH http://localhost:8080/api/inventario/articoli/{idArticolo}
+```
+
+**Permessi:** Proprietario dell'inventario a cui appartiene l'articolo, o ADMIN.
+
+Aggiorna la quantità dell'articolo indicato da `{idArticolo}`, sostituendo il valore esistente con quello passato nel body (non è un incremento/decremento). Risponde con 200 OK e il DTO aggiornato, 404 Not Found se l'articolo non esiste, 403 Forbidden se l'inventario non appartiene a chi effettua la richiesta.
+
+**Esempio da terminale:**
+```bash
+curl -X PATCH http://localhost:8080/api/inventario/articoli/{idArticolo} \
+     -H "Authorization: Bearer {{token}}" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "quantita": 10
+         }'
+```
+
 ### Elimina un articolo dall'inventario a partire dal suo `id` (PROPRIETARIO / ADMIN)
 
 ```js
@@ -463,6 +485,26 @@ curl -X POST http://localhost:8080/api/progetti/{idProgetto}/bom \
      -d '{
            "idElementoCatalogo": 1,
            "quantita": 2
+         }'
+```
+
+### Aggiorna la quantità di una riga della BOM (PROPRIETARIO / ADMIN)
+
+```js
+PATCH http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga}
+```
+
+**Permessi:** Proprietario del progetto o ADMIN.
+
+Aggiorna la quantità richiesta della riga `{idRiga}` nella B.O.M. del progetto `{idProgetto}`, sostituendo il valore esistente con quello passato nel body (non è un incremento/decremento). Risponde con 200 OK e il DTO aggiornato, 404 Not Found se il progetto o la riga non esistono (o la riga non appartiene a quel progetto), 403 Forbidden se il progetto non appartiene a chi effettua la richiesta.
+
+**Esempio da terminale:**
+```bash
+curl -X PATCH http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga} \
+     -H "Authorization: Bearer {{token}}" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "quantita": 5
          }'
 ```
 
