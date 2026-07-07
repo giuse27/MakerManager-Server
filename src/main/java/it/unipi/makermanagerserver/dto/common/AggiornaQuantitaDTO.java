@@ -1,5 +1,7 @@
 package it.unipi.makermanagerserver.dto.common;
 
+import jakarta.validation.constraints.Min;
+
 /**
  * DTO condiviso comune a ArticoloInventario e RigaBOM per l'aggiornamento della 
  * quantità di un articolo in Inventario oppure per l'aggiornamento di una 
@@ -7,6 +9,7 @@ package it.unipi.makermanagerserver.dto.common;
  */
 public class AggiornaQuantitaDTO {
 
+    @Min(value = 0, message = "Non puoi impostare una quantità negativa")
     private int quantita;
 
     public AggiornaQuantitaDTO() {}
