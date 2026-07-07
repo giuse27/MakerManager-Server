@@ -68,7 +68,7 @@ public class ArticoloInventarioMapper {
         
     }
 
-    public ArticoloInventarioResponseDTO tResponseDTO(ArticoloInventario articolo) {
+    public ArticoloInventarioResponseDTO toResponseDTO(ArticoloInventario articolo) {
 
         return new ArticoloInventarioResponseDTO(
             articolo.getId(),

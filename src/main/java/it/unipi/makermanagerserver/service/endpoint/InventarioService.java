@@ -87,7 +87,7 @@ public class InventarioService {
 
         return inventario.getArticoli()
                     .stream()
-                    .map(articoloMapper::tResponseDTO)
+                    .map(articoloMapper::toResponseDTO)
                     .toList();
 
     }
@@ -175,7 +175,7 @@ public class InventarioService {
 
         ArticoloInventario articoloDB = articoloRepo.save(articolo);
 
-        return articoloMapper.tResponseDTO(articoloDB);
+        return articoloMapper.toResponseDTO(articoloDB);
 
     }
 
@@ -210,7 +210,7 @@ public class InventarioService {
         articolo.setQuantita(dto.getQuantita());
         articoloRepo.save(articolo);
 
-        return articoloMapper.tResponseDTO(articolo);
+        return articoloMapper.toResponseDTO(articolo);
 
     }
 
