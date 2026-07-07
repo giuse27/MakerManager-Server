@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import it.unipi.makermanagerserver.dto.common.AggiornaQuantitaDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoConBomResponseDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoRequestDTO;
 import it.unipi.makermanagerserver.dto.progetto.ProgettoResponseDTO;
@@ -199,6 +200,47 @@ public class ProgettoService {
         RigaBOM rigaSalvata = righeSalvate.get(righeSalvate.size() - 1);
 
         return progettoMapper.toRigaBOMResponseDTO(rigaSalvata);
+
+    }
+
+    /**
+     * Aggiorna la quantità richiesta di una riga della B.O.M., sostituendo
+     * il valore esistente con quello indicato (set assoluto, non delta).
+     *
+     * @param idProgetto id del progetto proprietario della riga
+     * @param idRiga     id della riga da aggiornare
+     * @param dto        nuovo valore della quantità
+     * @return il DTO di risposta della riga aggiornata
+     * @throws RisorsaNonTrovataException se il progetto non esiste, o se la riga
+     *         non esiste o non appartiene al progetto indicato
+     * @throws it.unipi.makermanagerserver.exception.AccessoNegatoException
+     *         se il progetto non appartiene all'utente corrente e non e' ADMIN
+     */
+    public RigaBOMResponseDTO aggiornaQuantitaRigaBOM(
+        Long idProgetto, Long idRiga, AggiornaQuantitaDTO dto
+    ) {
+
+        ProgettoMaker progetto = cercaProgettoDaId(idProgetto);
+        
+        utenteCorrente.verificaProprietarioOAdmin(
+            progetto.getAutore(),
+            "Non puoi modificare la BOM di un progetto che non ti appartiene"
+        );
+
+        BOM bom = progetto.getDistintaBase();
+
+        RigaBOM riga = bom.getRigheFabbisogno()
+                .stream()
+                .filter(r -> r.getId().equals(idRiga))
+                .findFirst()
+                .orElseThrow(() -> new RisorsaNonTrovataException(
+                    "Riga BOM con id " + idRiga + " non trovata nel progetto " + idProgetto
+                ));
+
+        riga.setQuantitaRichiesta(dto.getQuantita());
+        progettoRepo.save(progetto);
+
+        return progettoMapper.toRigaBOMResponseDTO(riga);
 
     }
 

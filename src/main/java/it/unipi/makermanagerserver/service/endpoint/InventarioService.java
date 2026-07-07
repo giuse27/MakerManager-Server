@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import it.unipi.makermanagerserver.dto.common.AggiornaQuantitaDTO;
 import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioRequestDTO;
 import it.unipi.makermanagerserver.dto.inventario.ArticoloInventarioResponseDTO;
 import it.unipi.makermanagerserver.dto.inventario.InventarioRequestDTO;
@@ -175,6 +176,41 @@ public class InventarioService {
         ArticoloInventario articoloDB = articoloRepo.save(articolo);
 
         return articoloMapper.tResponseDTO(articoloDB);
+
+    }
+
+    /**
+     * Aggiorna la quantità di un articolo già presente in inventario,
+     * sostituendo il valore esistente con quello indicato (non è un
+     * incremento/decremento, ma un set assoluto).
+     *
+     * @param idArticolo id dell'articolo da aggiornare
+     * @param dto        nuovo valore della quantità
+     * @return il DTO di risposta aggiornato
+     * @throws RisorsaNonTrovataException se l'articolo non esiste
+     * @throws it.unipi.makermanagerserver.exception.AccessoNegatoException
+     *         se l'inventario a cui appartiene l'articolo non appartiene
+     *         all'utente corrente e non e' ADMIN
+     */
+    public ArticoloInventarioResponseDTO aggiornaQuantitaArticolo(
+        Long idArticolo,
+        AggiornaQuantitaDTO dto
+    ) {
+
+        ArticoloInventario articolo = articoloRepo.findById(idArticolo)
+                .orElseThrow(() -> new RisorsaNonTrovataException(
+                    "Articolo con id " + idArticolo + " non trovato"
+                ));
+        
+        utenteCorrente.verificaProprietarioOAdmin(
+            articolo.getInventario().getUtente(),
+            "Non puoi modificare un articolo di un inventario che non ti appartiene"
+        );
+
+        articolo.setQuantita(dto.getQuantita());
+        articoloRepo.save(articolo);
+
+        return articoloMapper.tResponseDTO(articolo);
 
     }
 
