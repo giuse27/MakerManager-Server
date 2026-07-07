@@ -46,8 +46,7 @@ public class ProgettiConsigliatiController {
         @RequestParam(name = "sogliaMancanti", required = false) Integer sogliaMancanti
     ) {
 
-        // TODO
-        return null;
+        return ResponseEntity.ok(consigliatiService.consigliaProgetti(sogliaMancanti));
 
     }
     
