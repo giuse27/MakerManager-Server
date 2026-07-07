@@ -188,6 +188,61 @@ Content-Type: application/json
 }
 
 ### -----------------------------------------------------------------------
+### Aggiorna la quantità di un articolo in inventario
+### -----------------------------------------------------------------------
+@idArticoloDaAggiornare = 1
+PATCH {{baseUrl}}/api/inventario/articoli/{{idArticoloDaAggiornare}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantita": 25
+}
+
+### -----------------------------------------------------------------------
+### Aggiorna la quantità di un articolo di un inventario altrui (per testare il 403 Forbidden)
+### -----------------------------------------------------------------------
+PATCH {{baseUrl}}/api/inventario/articoli/{{idArticoloDaAggiornare}}
+Authorization: Bearer {{token2}}
+Content-Type: application/json
+
+{
+  "quantita": 25
+}
+
+### -----------------------------------------------------------------------
+### Aggiorna la quantità con valore non valido (per testare @Min -> 400)
+### -----------------------------------------------------------------------
+PATCH {{baseUrl}}/api/inventario/articoli/{{idArticoloDaAggiornare}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantita": -5
+}
+
+### -----------------------------------------------------------------------
+### Aggiorna la quantità di un articolo inesistente (per testare il 404)
+### -----------------------------------------------------------------------
+PATCH {{baseUrl}}/api/inventario/articoli/999999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantita": 25
+}
+
+### -----------------------------------------------------------------------
+### Aggiorna la quantità senza autenticazione (per testare il 401)
+### -----------------------------------------------------------------------
+PATCH {{baseUrl}}/api/inventario/articoli/{{idArticoloDaAggiornare}}
+Content-Type: application/json
+
+{
+  "quantita": 25
+}
+
+### -----------------------------------------------------------------------
 ### Elimina un articolo dall'inventario a partire dal suo id
 ### -----------------------------------------------------------------------
 @idArticolo = 1
