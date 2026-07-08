@@ -76,9 +76,44 @@ public class ProgettiConsigliatiService {
         Map<Long, Integer> possedimenti = recuperaPossedimenti(utente.getId());
 
         // recupero i progetti in catalogo applicando dei filtri
-
-        
-        return null;
+        return progettoRepo.findAll()
+                    // apro lo stream
+                    .stream()
+                    // qui iniziano le operazioni eseguite sui singoli progetti
+                    // filtro eliminando i progetti di cui l'utente è autore
+                    .filter(
+                        progetto -> !appartieneAllUtente(
+                                        progetto, 
+                                        utente
+                                    ))
+                    // filtro eliminando i progetti con bom vuota
+                    .filter(
+                        progetto -> !haBomVuota(
+                                        progetto
+                                    ))
+                    // valuto la fattibilità del progetto
+                    .map(
+                        progetto ->  valuta(
+                                        progetto, 
+                                        possedimenti
+                                    ))
+                    // filtro per i soli progetti che rispettano i criteri
+                    .filter(
+                        valutazione -> compatibileConSoglia(
+                                        valutazione.esito(), 
+                                        soglia
+                                    ))
+                    // ordino usando le regole definite nel comparatore
+                    .sorted(
+                        ordinaFattibilitaDecrescente())
+                    // trasformo i progetti valutati in ProgettiConsigliatiResponseDTO
+                    .map(
+                        valutazione -> consigliatiMapper.toConsigliatoDTO(
+                                        valutazione.progetto(), 
+                                        valutazione.esito()
+                                    ))
+                    // costruisco la lista di output
+                    .toList();
 
     }
 
