@@ -154,6 +154,30 @@ public class ProgettiConsigliatiService {
     }
 
     /**
+     * Applica il calcolo della fattibilità di un progetto a un singolo progetto
+     * e restituisce un record che associa il progetto al suo esito
+     * 
+     * @param progetto progetto su cui effettuare il calcolo
+     * @param disponibilita disponibilità totali dell'utente date da
+     *                      recuperaPossedimenti()
+     * @return coppia di progetto e esito calcolato
+     */
+    private Valutazione valuta(
+        ProgettoMaker progetto, Map<Long, Integer> disponibilita
+    ) {
+
+        EsitoFattibilita esito = calcolatore.calcola(
+            progetto.getDistintaBase().getRigheFabbisogno(), 
+            disponibilita
+        );
+
+        return new Valutazione(progetto, esito);
+
+    }
+
+    // UTILITY DI VALIDAZIONE
+
+    /**
      * Sceglie la soglia effettiva quella passata dal client se presente,
      * altrimenti il default configurato. Rifiuta valori negativi.
      */
@@ -169,6 +193,17 @@ public class ProgettiConsigliatiService {
  
         return soglia;
  
+    }
+
+    // STRUTTURE DATI DI APPOGGIO
+
+    /**
+     * Record di appoggio per associare al progetto l'esito della sua fattibilità
+     * 
+     * @param progetto progetto in esame
+     * @param esito esito calcolato per progetto
+     */
+    private record Valutazione(ProgettoMaker progetto, EsitoFattibilita esito) {
     }
 
 }
