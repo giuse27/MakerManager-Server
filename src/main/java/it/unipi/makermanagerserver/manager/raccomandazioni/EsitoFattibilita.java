@@ -41,7 +41,7 @@ public record EsitoFattibilita(int righeTotali, List<ElementoMancante> dettaglio
         if (righeTotali == 0) {
             return 1.0;           
         }
-        return (double)(righeSoddisfatte() / righeTotali);
+        return (double) righeSoddisfatte() / righeTotali;
     }
 
     /**
