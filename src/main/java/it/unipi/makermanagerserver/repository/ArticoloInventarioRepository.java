@@ -13,5 +13,9 @@ public interface ArticoloInventarioRepository extends JpaRepository<ArticoloInve
     
     // Cerca un oggetto nell'inventario partendo dal suo descriptor teorico del catalogo
     List<ArticoloInventario> findByElementoCatalogoId(Long elementoCatalogoId);
+
+    // Restituisce TUTTI gli articoli posseduti da un utente attraverso i suoi
+    // inventari, navigando la relazione articolo -> inventario -> utente -> id
+    List<ArticoloInventario> findByInventarioUtenteId(Long idUtente);
     
 }

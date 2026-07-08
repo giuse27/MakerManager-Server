@@ -33,6 +33,7 @@
     - [Aggiungi una riga alla BOM di un progetto (PROPRIETARIO / ADMIN)](#aggiungi-una-riga-alla-bom-di-un-progetto-proprietario--admin)
     - [Aggiorna la quantità di una riga della BOM (PROPRIETARIO / ADMIN)](#aggiorna-la-quantità-di-una-riga-della-bom-proprietario--admin)
     - [Elimina una riga dalla BOM di un progetto a partire dal suo `id` (PROPRIETARIO / ADMIN)](#elimina-una-riga-dalla-bom-di-un-progetto-a-partire-dal-suo-id-proprietario--admin)
+    - [Visualizza i progetti consigliati in base al proprio inventario (AUTENTICATO)](#visualizza-i-progetti-consigliati-in-base-al-proprio-inventario-autenticato)
 
 ## Autenticazione e permessi
 
@@ -521,5 +522,27 @@ Consente l'eliminazione della riga indicata da `{idRiga}` dalla B.O.M. del proge
 **Esempio da terminale:**
 ```bash
 curl -v -X DELETE http://localhost:8080/api/progetti/{idProgetto}/bom/{idRiga} \
+     -H "Authorization: Bearer {{token}}"
+```
+
+### Visualizza i progetti consigliati in base al proprio inventario (AUTENTICATO)
+
+```js
+GET http://localhost:8080/api/progetti/consigliati
+```
+
+```js
+GET http://localhost:8080/api/progetti/consigliati?sogliaMancanti=N
+```
+
+**Permessi:** AUTENTICATO. Restituisce sempre e solo il profilo di chi ha effettuato la richiesta (ricavato dal token, non da un parametro).
+
+Restituisce i progetti suggeriti all'utente autenticato in base alle disponibilità aggregate di **tutti** i suoi inventari, già ordinati per indice di fattibilità decrescente (prima quelli realizzabili subito).
+
+Vengono esclusi i progetti di cui l'utente è autore e quelli con BOM vuota. Sono inclusi i progetti realizzabili **oppure** a cui manca un numero di elementi distinti minore o uguale alla soglia (default in `application.properties`, sovrascrivibile con `?sogliaMancanti=N` che è parametro opzionale).
+
+**Esempio da terminale:**
+```bash
+curl -v http://localhost:8080/api/progetti/consigliati \
      -H "Authorization: Bearer {{token}}"
 ```

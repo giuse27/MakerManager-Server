@@ -308,3 +308,17 @@ Authorization: Bearer {{token}}
 ### -----------------------------------------------------------------------
 DELETE {{baseUrl}}/api/progetti/{{idProgettoConBom}}/bom/999999
 Authorization: Bearer {{token}}
+
+### -----------------------------------------------------------------------
+### Progetti consigliati in base al proprio inventario (richiede login)
+### -----------------------------------------------------------------------
+GET {{baseUrl}}/api/progetti/consigliati
+Authorization: Bearer {{token}}
+
+### Con soglia esplicita: consiglia anche progetti a cui mancano fino a 5 elementi
+GET {{baseUrl}}/api/progetti/consigliati?sogliaMancanti=5
+Authorization: Bearer {{token}}
+
+### Soglia 0: solo progetti interamente realizzabili
+GET {{baseUrl}}/api/progetti/consigliati?sogliaMancanti=0
+Authorization: Bearer {{token}}
