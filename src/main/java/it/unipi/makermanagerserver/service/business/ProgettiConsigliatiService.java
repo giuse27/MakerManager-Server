@@ -1,5 +1,6 @@
 package it.unipi.makermanagerserver.service.business;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -204,6 +205,34 @@ public class ProgettiConsigliatiService {
      * @param esito esito calcolato per progetto
      */
     private record Valutazione(ProgettoMaker progetto, EsitoFattibilita esito) {
+    }
+
+    // COMPARATORI
+
+    private Comparator<Valutazione> ordinaFattibilitaDecrescente() {
+
+        return Comparator
+                // 1) ordino prima in base se i progetti sono realizzabili o meno
+                .comparing(
+                    (Valutazione v) -> v.esito().realizzabile())
+                    // l'ordine di 1 lo setto con reversed per avere prima true
+                    // e poi false (prima i realizzabili poi quelli con soglia)
+                    // l'uso di .reversed() non influenza i .thenComparing
+                    .reversed()
+                // 2) a parità di realizzabilità ordino sulla base di indice
+                //      di fattibilita decrescente
+                .thenComparing(
+                    v -> v.esito().indiceFattibilita(), Comparator.reverseOrder())
+                // 3) ...poi sulla base del numero di righe bom mancanti (crescente)
+                .thenComparing(
+                    v -> v.esito().righeMancanti())
+                // 4) ...poi sulla base dei pezzi totali mancanti (crescente)
+                .thenComparing(v -> v.esito().pezziMancantiTotali())
+                // 5) e solo infine a parità di tutte le condizioni ordino in 
+                //      ordine alfabetico
+                .thenComparing(
+                    v -> v.progetto().getNome(), String.CASE_INSENSITIVE_ORDER);              
+
     }
 
 }
