@@ -1,6 +1,8 @@
 package it.unipi.makermanagerserver.service.business;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,7 +10,11 @@ import org.springframework.stereotype.Service;
 import it.unipi.makermanagerserver.dto.raccomandazione.ProgettoConsigliatoResponseDTO;
 import it.unipi.makermanagerserver.exception.DatiNonValidiException;
 import it.unipi.makermanagerserver.manager.raccomandazioni.CalcolatoreFattibilita;
+import it.unipi.makermanagerserver.manager.raccomandazioni.EsitoFattibilita;
 import it.unipi.makermanagerserver.mapper.ProgettiConsigliatiMapper;
+import it.unipi.makermanagerserver.model.inventory.ArticoloInventario;
+import it.unipi.makermanagerserver.model.project.ProgettoMaker;
+import it.unipi.makermanagerserver.model.user.Utente;
 import it.unipi.makermanagerserver.repository.ArticoloInventarioRepository;
 import it.unipi.makermanagerserver.repository.ProgettoMakerRepository;
 import it.unipi.makermanagerserver.security.UtenteCorrente;
@@ -58,13 +64,94 @@ public class ProgettiConsigliatiService {
         Integer sogliaRichiesta
     ) {
 
+        // per prima cosa recupero l'utente corrente
+        Utente utente = utenteCorrente.get();
+
+        // verifico la correttezza della soglia
         int soglia = risolviSoglia(sogliaRichiesta);
+        
+        // recupero i possedimenti dell'utente in una mappa con idElemento e disp
+        // utile per fare i controlli sui progetti successivamente
+        Map<Long, Integer> possedimenti = recuperaPossedimenti(utente.getId());
+
+        // recupero i progetti in catalogo applicando dei filtri
+
         
         return null;
 
     }
 
+    // METODI PRIVATI PER IL RECUPERO DELLE INFORMAZIONI
+
+    private Map<Long, Integer> recuperaPossedimenti(long idUtente) {
+
+        // cerco tutti di ArticoliInventario posseduti da un utente
+        return articoliRepo.findByInventarioUtenteId(idUtente)
+                    // apro lo stream per eseguire delle operazioni
+                    .stream()
+                    // raggruppo per idElemento rimuovendo i duplicati e poi 
+                    // sommo le quantita sugli elementi uguali
+                    .collect(Collectors.groupingBy(
+                        articolo -> articolo.getElementoCatalogo().getId(),
+                        Collectors.summingInt(ArticoloInventario::getQuantita)
+                    ));
+                    // il risultato ottenuto è adesso una lista di id di elementi
+                    // univoci di cui per ognuno si conosce la quantita posseduta
+
+    }
+
     // UTILITY PRIVATE
+
+    /**
+     * Verifica se il ProgettoMaker progetto appartiente all'Utente utente
+     * 
+     * @param progetto progetto da valutare
+     * @param utente utente del sistema su cui si sta facendo la valutazione
+     * @return true se il progetto appartiene all'utente, false altrimenti
+     */
+    private boolean appartieneAllUtente(
+        ProgettoMaker progetto, Utente utente
+    ) {
+
+        return (progetto.getAutore() != null &&
+            progetto.getAutore().getId().equals(utente.getId())
+        );
+
+    }
+
+    /**
+     * Utility per verificare se la bom del progetto è vuota. Faccio questo
+     * controllo perché per come ho deciso la logica, i progetti con bom vuota
+     * non devono risultare nei risultati di ricerca. Questi progetti potrebbero
+     * essere gestiti in futuro come casi particolari, magari progetti didattici
+     * che appariranno in filtri diversi.
+     * 
+     * @param progetto progetto di cui si desidera conoscere lo stato della bom
+     * @return true se il progetto ha bom vuota false altrimenti
+     */
+    private boolean haBomVuota(ProgettoMaker progetto) {
+
+        return progetto.getDistintaBase()
+                        .getRigheFabbisogno()
+                        .isEmpty();
+
+    }
+
+    /**
+     * Utility che verifica se il progetto corrisponde ai criteri di 
+     * relizzabilità o rientra comunque nella soglia
+     * 
+     * @param esito risultato calcolato da CalcolatoreFattibilita
+     * @param soglia soglia per la valutazione
+     * @return true se il progetto rientra nei criteri, false altrimenti
+     */
+    private boolean compatibileConSoglia(
+        EsitoFattibilita esito, int soglia
+    ) {
+
+        return (esito.realizzabile() || esito.righeMancanti() <= soglia);
+
+    }
 
     /**
      * Sceglie la soglia effettiva quella passata dal client se presente,
