@@ -120,13 +120,13 @@
   "utenti": [
     {
       "nickname": "pippo",
-      "email": "utentepippo@test.com",
-      "password": "password-123!"
+      "email": "pippo@test.com",
+      "password": "LOUVRE2014"
     },
     {
       "nickname": "giuse27",
-      "email": "utentegiuse@test.com",
-      "password": "Segretissimo1234"
+      "email": "giuse27@test.com",
+      "password": "LOUVRE2014"
     }
   ]
   
