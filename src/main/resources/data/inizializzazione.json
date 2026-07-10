@@ -1,133 +1,442 @@
 {
 
   "catalogo": [
-    {
-      "nome": "Raspberry Pi 4 Model B",
-      "descrizione": "Single Board Computer 4GB RAM",
-      "tipologia": "COMPONENTE_ELETTRONICO"
-    },
-    {
-      "nome": "Arduino Uno R3",
-      "descrizione": "Microcontrollore ATmega328P",
-      "tipologia": "COMPONENTE_ELETTRONICO"
-    },
-    {
-      "nome": "Sensore ultrasuoni HC-SR04",
-      "descrizione": "Modulo per la misurazione di distanze",
-      "tipologia": "COMPONENTE_ELETTRONICO"
-    },
-    {
-      "nome": "Filamento PLA 1.75mm",
-      "descrizione": "Bobina da 1kg per stampa 3D FDM",
-      "tipologia": "MATERIALE_CONSUMABILE"
-    },
-    {
-      "nome": "Resina fotopolimerica standard",
-      "descrizione": "Resina per stampanti 3D a resina, 500ml",
-      "tipologia": "MATERIALE_CONSUMABILE"
-    }
+    { "nome": "Raspberry Pi 4 Model B", "descrizione": "Single Board Computer 4GB RAM", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Raspberry Pi Pico W", "descrizione": "Microcontrollore RP2040 con Wi-Fi integrato", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Arduino Uno R3", "descrizione": "Microcontrollore ATmega328P", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Arduino Nano", "descrizione": "Versione compatta del microcontrollore ATmega328P", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "ESP32 DevKit", "descrizione": "Modulo Wi-Fi/Bluetooth con doppio core per progetti IoT", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "ESP8266 NodeMCU", "descrizione": "Modulo Wi-Fi economico per prototipazione IoT", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Sensore ultrasuoni HC-SR04", "descrizione": "Modulo per la misurazione di distanze", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Sensore DHT22 temperatura/umidità", "descrizione": "Sensore digitale ad alta precisione", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Modulo relè 4 canali", "descrizione": "Permette di pilotare carichi di potenza da microcontrollore", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Display OLED 0.96 I2C", "descrizione": "Piccolo display grafico monocromatico", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Motore passo-passo NEMA 17", "descrizione": "Motore per assi di stampanti 3D e CNC", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Driver motore L298N", "descrizione": "Ponte H doppio per pilotare motori DC e passo-passo", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Servo motore SG90", "descrizione": "Micro servo a 180° per bracci robotici e meccanismi", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Modulo Bluetooth HC-05", "descrizione": "Modulo seriale per comunicazione wireless a corto raggio", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Breadboard 830 punti", "descrizione": "Basetta sperimentale per prototipazione senza saldature", "tipologia": "COMPONENTE_ELETTRONICO" },
+    { "nome": "Kit resistori assortiti (600pz)", "descrizione": "Assortimento di resistori da 1Ω a 1MΩ", "tipologia": "COMPONENTE_ELETTRONICO" },
+
+    { "nome": "Filamento PLA 1.75mm", "descrizione": "Bobina da 1kg per stampa 3D FDM", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Filamento PETG 1.75mm", "descrizione": "Bobina da 1kg, maggiore resistenza termica del PLA", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Filamento ABS 1.75mm", "descrizione": "Bobina da 1kg, resistente e post-lavorabile con acetone", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Filamento TPU flessibile", "descrizione": "Bobina da 1kg per stampe elastiche e paraurti", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Resina fotopolimerica standard", "descrizione": "Resina per stampanti 3D a resina, 500ml", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Resina fotopolimerica ad alta resistenza", "descrizione": "Resina rinforzata per parti funzionali, 500ml", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Stagno per saldatura 60/40", "descrizione": "Filo per saldatura elettronica, 100g", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Flussante per saldatura", "descrizione": "Facilita la saldatura riducendo l'ossidazione", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Nastro Kapton", "descrizione": "Nastro termoresistente per stampa 3D e isolamento elettrico", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Colla a caldo (stick)", "descrizione": "Confezione di stick per pistola termica", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Viti M3 assortite (kit)", "descrizione": "Kit di viti a testa svasata in varie lunghezze", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Dadi M3 (confezione 100pz)", "descrizione": "Dadi esagonali per assemblaggi meccanici", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Fascette in nylon", "descrizione": "Confezione da 100pz per organizzare i cavi", "tipologia": "MATERIALE_CONSUMABILE" },
+    { "nome": "Isopropanolo per pulizia resina", "descrizione": "Alcool isopropilico 99%, 1 litro", "tipologia": "MATERIALE_CONSUMABILE" },
+
+    { "nome": "Saldatore a stagno regolabile", "descrizione": "Saldatore elettronico con controllo di temperatura", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Stazione di saldatura ad aria calda", "descrizione": "Per rilavorazione di componenti SMD", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Multimetro digitale", "descrizione": "Per misure di tensione, corrente e continuità", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Cutter di precisione", "descrizione": "Per rifinire stampe 3D e tagliare materiali sottili", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Pinza spellafili", "descrizione": "Per la preparazione dei cavi elettrici", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Set cacciaviti di precisione", "descrizione": "Kit con punte intercambiabili per elettronica", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Pinza a becchi lunghi", "descrizione": "Utile per piegare terminali e maneggiare componenti piccoli", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Calibro digitale", "descrizione": "Per misure precise di lunghezza e spessore", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Pistola per colla a caldo", "descrizione": "Per incollaggi rapidi e prototipazione", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Mini trapano rotativo (Dremel)", "descrizione": "Utensile multifunzione per taglio, foratura e levigatura", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Spatola per piatto stampa 3D", "descrizione": "Per staccare i pezzi stampati dal piano", "tipologia": "ATTREZZO_DA_LAVORO" },
+    { "nome": "Lampada UV per curare resina", "descrizione": "Completa la polimerizzazione dei pezzi in resina", "tipologia": "ATTREZZO_DA_LAVORO" },
+
+    { "nome": "Licenza Autodesk Fusion 360", "descrizione": "CAD/CAM per progettazione 3D parametrica", "tipologia": "SOFTWARE" },
+    { "nome": "Licenza SolidWorks Student", "descrizione": "Software di modellazione meccanica 3D", "tipologia": "SOFTWARE" },
+    { "nome": "Abbonamento PrusaSlicer Pro", "descrizione": "Slicer avanzato per stampa 3D multi-materiale", "tipologia": "SOFTWARE" },
+    { "nome": "IDE PlatformIO Pro", "descrizione": "Ambiente di sviluppo per firmware embedded", "tipologia": "SOFTWARE" },
+    { "nome": "Licenza KiCad Pro Support", "descrizione": "Supporto professionale per progettazione PCB", "tipologia": "SOFTWARE" },
+    { "nome": "Licenza MATLAB Home", "descrizione": "Ambiente per calcolo numerico e analisi dati", "tipologia": "SOFTWARE" },
+    { "nome": "Abbonamento Adobe Illustrator", "descrizione": "Software di grafica vettoriale per etichette e schemi", "tipologia": "SOFTWARE" },
+    { "nome": "Licenza LabVIEW Community Plus", "descrizione": "Ambiente grafico per acquisizione dati e controllo", "tipologia": "SOFTWARE" }
   ],
 
   "inventari": [
-    {
-      "nome": "Inventario di Pippo",
-      "utente": "pippo"
-    },
-    {
-      "nome": "Inventario casa di Peppe",
-      "utente": "giuse27"
-    },
-    {
-      "nome": "Inventario laboratorio di Peppe",
-      "utente": "giuse27"
-    }
+    { "nome": "Laboratorio elettronica di Pippo", "utente": "pippo" },
+    { "nome": "Cassetta trasporto di Pippo", "utente": "pippo" },
+    { "nome": "Stampante 3D di Andrea", "utente": "andrea" },
+    { "nome": "Officina robotica di Peppe", "utente": "peppe" },
+    { "nome": "Scaffale ricambi di Peppe", "utente": "peppe" },
+    { "nome": "Postazione IoT di Maria", "utente": "maria" },
+    { "nome": "Laboratorio elettronico di Andrea", "utente": "andrea" },
+    { "nome": "Cassetta ricambi robotica di Maria", "utente": "maria" }
   ],
 
   "articoliInventario": [
-    {
-      "tipo": "COMPONENTE_ELETTRONICO",
-      "elementoCatalogo": "Raspberry Pi 4 Model B",
-      "inventario": "Inventario di Pippo",
-      "quantita": 2
-    },
-    {
-      "tipo": "COMPONENTE_ELETTRONICO",
-      "elementoCatalogo": "Arduino Uno R3",
-      "inventario": "Inventario di Pippo",
-      "quantita": 5
-    },
-    {
-      "tipo": "MATERIALE_CONSUMABILE",
-      "elementoCatalogo": "Filamento PLA 1.75mm",
-      "inventario": "Inventario di Pippo",
-      "quantita": 3
-    },
-    {
-      "tipo": "MATERIALE_CONSUMABILE",
-      "elementoCatalogo": "Resina fotopolimerica standard",
-      "inventario": "Inventario di Pippo",
-      "quantita": 1
-    }
-    ,
-    {
-      "tipo": "COMPONENTE_ELETTRONICO",
-      "elementoCatalogo": "Arduino Uno R3",
-      "inventario": "Inventario casa di Peppe",
-      "quantita": 2
-    },
-    {
-      "tipo": "COMPONENTE_ELETTRONICO",
-      "elementoCatalogo": "Sensore ultrasuoni HC-SR04",
-      "inventario": "Inventario casa di Peppe",
-      "quantita": 4
-    },
-    {
-      "tipo": "MATERIALE_CONSUMABILE",
-      "elementoCatalogo": "Filamento PLA 1.75mm",
-      "inventario": "Inventario laboratorio di Peppe",
-      "quantita": 30
-    },
-    {
-      "tipo": "MATERIALE_CONSUMABILE",
-      "elementoCatalogo": "Resina fotopolimerica standard",
-      "inventario": "Inventario laboratorio di Peppe",
-      "quantita": 10
-    }
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Arduino Uno R3", "inventario": "Laboratorio elettronica di Pippo", "quantita": 3 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "ESP32 DevKit", "inventario": "Laboratorio elettronica di Pippo", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "inventario": "Laboratorio elettronica di Pippo", "quantita": 4 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "inventario": "Laboratorio elettronica di Pippo", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Display OLED 0.96 I2C", "inventario": "Laboratorio elettronica di Pippo", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Breadboard 830 punti", "inventario": "Laboratorio elettronica di Pippo", "quantita": 3 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Kit resistori assortiti (600pz)", "inventario": "Laboratorio elettronica di Pippo", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Driver motore L298N", "inventario": "Laboratorio elettronica di Pippo", "quantita": 2 },
+
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Saldatore a stagno regolabile", "inventario": "Cassetta trasporto di Pippo", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Multimetro digitale", "inventario": "Cassetta trasporto di Pippo", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Pinza spellafili", "inventario": "Cassetta trasporto di Pippo", "quantita": 1 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Stagno per saldatura 60/40", "inventario": "Cassetta trasporto di Pippo", "quantita": 2 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Set cacciaviti di precisione", "inventario": "Cassetta trasporto di Pippo", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Servo motore SG90", "inventario": "Cassetta trasporto di Pippo", "quantita": 4 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Nastro Kapton", "inventario": "Cassetta trasporto di Pippo", "quantita": 1 },
+
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Filamento PLA 1.75mm", "inventario": "Stampante 3D di Andrea", "quantita": 5 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Filamento PETG 1.75mm", "inventario": "Stampante 3D di Andrea", "quantita": 3 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Filamento ABS 1.75mm", "inventario": "Stampante 3D di Andrea", "quantita": 2 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Filamento TPU flessibile", "inventario": "Stampante 3D di Andrea", "quantita": 1 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Resina fotopolimerica standard", "inventario": "Stampante 3D di Andrea", "quantita": 2 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Isopropanolo per pulizia resina", "inventario": "Stampante 3D di Andrea", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Spatola per piatto stampa 3D", "inventario": "Stampante 3D di Andrea", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Cutter di precisione", "inventario": "Stampante 3D di Andrea", "quantita": 1 },
+    { "tipo": "SOFTWARE", "elementoCatalogo": "Licenza Autodesk Fusion 360", "inventario": "Stampante 3D di Andrea", "quantita": 1 },
+
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "ESP32 DevKit", "inventario": "Officina robotica di Peppe", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Motore passo-passo NEMA 17", "inventario": "Officina robotica di Peppe", "quantita": 3 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Driver motore L298N", "inventario": "Officina robotica di Peppe", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Servo motore SG90", "inventario": "Officina robotica di Peppe", "quantita": 6 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "inventario": "Officina robotica di Peppe", "quantita": 2 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Mini trapano rotativo (Dremel)", "inventario": "Officina robotica di Peppe", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Calibro digitale", "inventario": "Officina robotica di Peppe", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Set cacciaviti di precisione", "inventario": "Officina robotica di Peppe", "quantita": 1 },
+
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Viti M3 assortite (kit)", "inventario": "Scaffale ricambi di Peppe", "quantita": 2 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Dadi M3 (confezione 100pz)", "inventario": "Scaffale ricambi di Peppe", "quantita": 2 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Fascette in nylon", "inventario": "Scaffale ricambi di Peppe", "quantita": 3 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Filamento PETG 1.75mm", "inventario": "Scaffale ricambi di Peppe", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Kit resistori assortiti (600pz)", "inventario": "Scaffale ricambi di Peppe", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Pinza a becchi lunghi", "inventario": "Scaffale ricambi di Peppe", "quantita": 1 },
+    { "tipo": "SOFTWARE", "elementoCatalogo": "Licenza KiCad Pro Support", "inventario": "Scaffale ricambi di Peppe", "quantita": 1 },
+
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "ESP32 DevKit", "inventario": "Postazione IoT di Maria", "quantita": 3 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Raspberry Pi 4 Model B", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Raspberry Pi Pico W", "inventario": "Postazione IoT di Maria", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "inventario": "Postazione IoT di Maria", "quantita": 2 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Modulo Bluetooth HC-05", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Breadboard 830 punti", "inventario": "Postazione IoT di Maria", "quantita": 2 },
+    { "tipo": "SOFTWARE", "elementoCatalogo": "IDE PlatformIO Pro", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+    { "tipo": "SOFTWARE", "elementoCatalogo": "Licenza MATLAB Home", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+    { "tipo": "SOFTWARE", "elementoCatalogo": "Abbonamento Adobe Illustrator", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Multimetro digitale", "inventario": "Postazione IoT di Maria", "quantita": 1 },
+
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "ESP32 DevKit", "inventario": "Laboratorio elettronico di Andrea", "quantita": 1 },
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Modulo relè 4 canali", "inventario": "Laboratorio elettronico di Andrea", "quantita": 1 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Fascette in nylon", "inventario": "Laboratorio elettronico di Andrea", "quantita": 1 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Fascette in nylon", "inventario": "Laboratorio elettronico di Andrea", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Multimetro digitale", "inventario": "Laboratorio elettronico di Andrea", "quantita": 1 },
+
+    { "tipo": "COMPONENTE_ELETTRONICO", "elementoCatalogo": "Servo motore SG90", "inventario": "Cassetta ricambi robotica di Maria", "quantita": 2 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Viti M3 assortite (kit)", "inventario": "Cassetta ricambi robotica di Maria", "quantita": 1 },
+    { "tipo": "MATERIALE_CONSUMABILE", "elementoCatalogo": "Fascette in nylon", "inventario": "Cassetta ricambi robotica di Maria", "quantita": 1 },
+    { "tipo": "ATTREZZO_DA_LAVORO", "elementoCatalogo": "Cutter di precisione", "inventario": "Cassetta ricambi robotica di Maria", "quantita": 1 }
   ],
 
   "progetti": [
     {
       "tipo": "STAMPA_3D",
       "nome": "Supporto da tavolo per smartphone",
-      "descrizione": "Supporto stampabile in PLA per smartphone e tablet",
-      "autore": "pippo",
+      "descrizione": "Supporto stampabile in PLA per smartphone e tablet, rifinito a mano dopo la stampa",
+      "autore": "andrea",
       "bom": [
-        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 }
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Spatola per piatto stampa 3D", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "STAMPA_3D",
+      "nome": "Organizer modulare per cassetti",
+      "descrizione": "Sistema di vaschette impilabili in PETG per organizzare viteria e minuteria",
+      "autore": "peppe",
+      "bom": [
+        { "elementoCatalogo": "Filamento PETG 1.75mm", "quantita": 2 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 1 },
+        { "elementoCatalogo": "Dadi M3 (confezione 100pz)", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "STAMPA_3D",
+      "nome": "Prototipo di visiera protettiva in resina",
+      "descrizione": "Prototipazione rapida in resina fotopolimerica ad alta resistenza per test funzionali",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "Resina fotopolimerica standard", "quantita": 2 },
+        { "elementoCatalogo": "Resina fotopolimerica ad alta resistenza", "quantita": 1 },
+        { "elementoCatalogo": "Isopropanolo per pulizia resina", "quantita": 1 },
+        { "elementoCatalogo": "Lampada UV per curare resina", "quantita": 1 },
+        { "elementoCatalogo": "Spatola per piatto stampa 3D", "quantita": 1 }
       ]
     },
     {
       "tipo": "ELETTRONICA",
       "nome": "Stazione meteo con Arduino",
-      "descrizione": "Stazione di rilevamento distanza/prossimità basata su Arduino",
-      "autore": "giuse27",
+      "descrizione": "Stazione di rilevamento temperatura e umidità con display integrato",
+      "autore": "pippo",
       "bom": [
         { "elementoCatalogo": "Arduino Uno R3", "quantita": 1 },
-        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 1 }
+        { "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "quantita": 1 },
+        { "elementoCatalogo": "Display OLED 0.96 I2C", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Sistema di allarme con sensore di prossimità",
+      "descrizione": "Rileva l'avvicinamento a una zona protetta e attiva un relè per la sirena",
+      "autore": "andrea",
+      "bom": [
+        { "elementoCatalogo": "Arduino Nano", "quantita": 1 },
+        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Presa smart controllata via Bluetooth",
+      "descrizione": "Modulo per accendere/spegnere un carico da smartphone via Bluetooth",
+      "autore": "peppe",
+      "bom": [
+        { "elementoCatalogo": "ESP8266 NodeMCU", "quantita": 1 },
+        { "elementoCatalogo": "Modulo Bluetooth HC-05", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 1 },
+        { "elementoCatalogo": "Stagno per saldatura 60/40", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ROBOTICA",
+      "nome": "Braccio robotico a 4 gradi di libertà",
+      "descrizione": "Braccio robotico desktop pilotato da Arduino con 4 servo motori",
+      "autore": "pippo",
+      "bom": [
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 4 },
+        { "elementoCatalogo": "Arduino Uno R3", "quantita": 1 },
+        { "elementoCatalogo": "Driver motore L298N", "quantita": 1 },
+        { "elementoCatalogo": "Motore passo-passo NEMA 17", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ROBOTICA",
+      "nome": "Rover cingolato con evitamento ostacoli",
+      "descrizione": "Piccolo rover autonomo che evita gli ostacoli grazie a due sensori a ultrasuoni",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "ESP32 DevKit", "quantita": 1 },
+        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 2 },
+        { "elementoCatalogo": "Driver motore L298N", "quantita": 1 },
+        { "elementoCatalogo": "Motore passo-passo NEMA 17", "quantita": 2 },
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 1 },
+        { "elementoCatalogo": "Fascette in nylon", "quantita": 1 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "SOFTWARE",
+      "nome": "Dashboard IoT per monitoraggio ambientale",
+      "descrizione": "Firmware e dashboard per raccogliere e visualizzare dati di temperatura e umidità",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "ESP32 DevKit", "quantita": 1 },
+        { "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "quantita": 1 },
+        { "elementoCatalogo": "IDE PlatformIO Pro", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "SOFTWARE",
+      "nome": "Profilo di slicing ottimizzato multi-materiale",
+      "descrizione": "Set di profili di slicing testati su PETG per ridurre scarti e tempi di stampa",
+      "autore": "andrea",
+      "bom": [
+        { "elementoCatalogo": "Abbonamento PrusaSlicer Pro", "quantita": 1 },
+        { "elementoCatalogo": "Licenza Autodesk Fusion 360", "quantita": 1 },
+        { "elementoCatalogo": "Filamento PETG 1.75mm", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "STAMPA_3D",
+      "nome": "Stampante 3D CoreXY autocostruita",
+      "descrizione": "Telaio e meccanica di una stampante 3D CoreXY assemblata da zero",
+      "autore": "pippo",
+      "bom": [
+        { "elementoCatalogo": "Motore passo-passo NEMA 17", "quantita": 3 },
+        { "elementoCatalogo": "Driver motore L298N", "quantita": 2 },
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 4 },
+        { "elementoCatalogo": "Dadi M3 (confezione 100pz)", "quantita": 4 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 },
+        { "elementoCatalogo": "Nastro Kapton", "quantita": 1 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 2 }
+      ]
+    },
+    {
+      "tipo": "STAMPA_3D",
+      "nome": "Diorama stampato multi-colore con base illuminata",
+      "descrizione": "Diorama in più materiali con illuminazione LED pilotata elettronicamente nella base",
+      "autore": "peppe",
+      "bom": [
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Filamento PETG 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Filamento TPU flessibile", "quantita": 1 },
+        { "elementoCatalogo": "ESP32 DevKit", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Colla a caldo (stick)", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 },
+        { "elementoCatalogo": "Spatola per piatto stampa 3D", "quantita": 1 },
+        { "elementoCatalogo": "Nastro Kapton", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Centralina di controllo carica batterie solare",
+      "descrizione": "Centralina che monitora un pannello solare e gestisce la carica di una batteria",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "Arduino Nano", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 2 },
+        { "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "quantita": 1 },
+        { "elementoCatalogo": "Display OLED 0.96 I2C", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Stagno per saldatura 60/40", "quantita": 1 },
+        { "elementoCatalogo": "Multimetro digitale", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Pannello di controllo domotico multi-sensore",
+      "descrizione": "Centralina domotica che gestisce luci e tapparelle in base a sensori ambientali",
+      "autore": "andrea",
+      "bom": [
+        { "elementoCatalogo": "ESP32 DevKit", "quantita": 1 },
+        { "elementoCatalogo": "Sensore DHT22 temperatura/umidità", "quantita": 1 },
+        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 2 },
+        { "elementoCatalogo": "Display OLED 0.96 I2C", "quantita": 1 },
+        { "elementoCatalogo": "Modulo Bluetooth HC-05", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Stagno per saldatura 60/40", "quantita": 1 },
+        { "elementoCatalogo": "Modulo relè 4 canali", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ELETTRONICA",
+      "nome": "Amplificatore audio portatile a componenti discreti",
+      "descrizione": "Piccolo amplificatore audio assemblato su breadboard con componenti discreti",
+      "autore": "peppe",
+      "bom": [
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Stagno per saldatura 60/40", "quantita": 2 },
+        { "elementoCatalogo": "Flussante per saldatura", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Saldatore a stagno regolabile", "quantita": 1 },
+        { "elementoCatalogo": "Stazione di saldatura ad aria calda", "quantita": 1 },
+        { "elementoCatalogo": "Multimetro digitale", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ROBOTICA",
+      "nome": "Braccio robotico industriale a 6 assi",
+      "descrizione": "Braccio robotico a 6 gradi di libertà per applicazioni di pick-and-place",
+      "autore": "pippo",
+      "bom": [
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 6 },
+        { "elementoCatalogo": "Motore passo-passo NEMA 17", "quantita": 2 },
+        { "elementoCatalogo": "Driver motore L298N", "quantita": 2 },
+        { "elementoCatalogo": "Arduino Uno R3", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 1 },
+        { "elementoCatalogo": "Dadi M3 (confezione 100pz)", "quantita": 1 },
+        { "elementoCatalogo": "Calibro digitale", "quantita": 1 },
+        { "elementoCatalogo": "Set cacciaviti di precisione", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "ROBOTICA",
+      "nome": "Quadrupede robotico ispirato agli insetti",
+      "descrizione": "Piccolo robot a quattro zampe con andatura ispirata agli insetti",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 4 },
+        { "elementoCatalogo": "ESP32 DevKit", "quantita": 1 },
+        { "elementoCatalogo": "Sensore ultrasuoni HC-SR04", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 1 },
+        { "elementoCatalogo": "Fascette in nylon", "quantita": 1 },
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 4 }
+      ]
+    },
+    {
+      "tipo": "ROBOTICA",
+      "nome": "Mano robotica antropomorfa stampata in 3D",
+      "descrizione": "Protesi dimostrativa di mano robotica con dita azionate da servomotori",
+      "autore": "andrea",
+      "bom": [
+        { "elementoCatalogo": "Servo motore SG90", "quantita": 5 },
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Filamento TPU flessibile", "quantita": 1 },
+        { "elementoCatalogo": "Fascette in nylon", "quantita": 2 },
+        { "elementoCatalogo": "Viti M3 assortite (kit)", "quantita": 2 },
+        { "elementoCatalogo": "Dadi M3 (confezione 100pz)", "quantita": 2 },
+        { "elementoCatalogo": "Arduino Nano", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "SOFTWARE",
+      "nome": "Suite di progettazione PCB e simulazione circuiti",
+      "descrizione": "Postazione software e hardware per progettare e verificare schemi elettronici",
+      "autore": "maria",
+      "bom": [
+        { "elementoCatalogo": "Licenza KiCad Pro Support", "quantita": 1 },
+        { "elementoCatalogo": "Licenza MATLAB Home", "quantita": 1 },
+        { "elementoCatalogo": "Licenza LabVIEW Community Plus", "quantita": 1 },
+        { "elementoCatalogo": "Multimetro digitale", "quantita": 1 },
+        { "elementoCatalogo": "Saldatore a stagno regolabile", "quantita": 1 },
+        { "elementoCatalogo": "Stagno per saldatura 60/40", "quantita": 1 },
+        { "elementoCatalogo": "Breadboard 830 punti", "quantita": 1 },
+        { "elementoCatalogo": "Kit resistori assortiti (600pz)", "quantita": 1 }
+      ]
+    },
+    {
+      "tipo": "SOFTWARE",
+      "nome": "Pipeline di modellazione e rendering per prototipi",
+      "descrizione": "Flusso di lavoro CAD/slicing/grafica per portare un'idea dal modello 3D al prototipo fisico",
+      "autore": "pippo",
+      "bom": [
+        { "elementoCatalogo": "Licenza Autodesk Fusion 360", "quantita": 1 },
+        { "elementoCatalogo": "Licenza SolidWorks Student", "quantita": 1 },
+        { "elementoCatalogo": "Abbonamento Adobe Illustrator", "quantita": 1 },
+        { "elementoCatalogo": "Abbonamento PrusaSlicer Pro", "quantita": 1 },
+        { "elementoCatalogo": "Filamento PLA 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Filamento PETG 1.75mm", "quantita": 1 },
+        { "elementoCatalogo": "Resina fotopolimerica standard", "quantita": 1 },
+        { "elementoCatalogo": "Cutter di precisione", "quantita": 1 },
+        { "elementoCatalogo": "Spatola per piatto stampa 3D", "quantita": 1 },
+        { "elementoCatalogo": "Lampada UV per curare resina", "quantita": 1 }
       ]
     }
   ],
 
   "utenti": [
-    {
-      "nickname": "pippo",
-      "email": "pippo@test.com",
-      "password": "LOUVRE2014"
-    },
-    {
-      "nickname": "giuse27",
-      "email": "giuse27@test.com",
-      "password": "LOUVRE2014"
-    }
+    { "nickname": "pippo", "email": "pippo@test.com", "password": "LOUVRE2014" },
+    { "nickname": "maria", "email": "maria@test.com", "password": "LOUVRE2014" },
+    { "nickname": "peppe", "email": "peppe@test.com", "password": "LOUVRE2014" },
+    { "nickname": "andrea", "email": "andrea@test.com", "password": "LOUVRE2014" }
   ]
-  
+
 }
