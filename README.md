@@ -1,13 +1,5 @@
 # MakerManager
 
-</br>
-
-<div align="center">
-  <img src="https://img.shields.io/badge/Stato-Work_in_Progress-yellow?style=for-the-badge" alt="Work in Progress Banner">
-</div>
-
-</br>
-
 <p align="center">
   <a href="https://github.com/giuse27/MakerManager-Server">
     <img src="https://img.shields.io/github/stars/giuse27/MakerManager-Server?style=social" alt="Stars">
